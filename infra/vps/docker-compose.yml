@@ -1,80 +1,107 @@
 name: testers-vps
 
+# ============================================
+# VPS Top-Level Stack (Hetzner CCX13 / benzeri)
+# Nginx reverse proxy + Postgres + Redis + App + Worker + Scheduler + Asynqmon + Web
+# ============================================
+
 services:
+  # ============== Nginx Reverse Proxy ==============
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: tc-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./proxy_params.conf:/etc/nginx/proxy_params:ro
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - api
+      - web
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/health"]
+      interval: 30s
+
+  # ============== PostgreSQL ==============
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
+    container_name: tc-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: tester
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
       POSTGRES_DB: testers
-      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: tester
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ../../apps/api/migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tester -d testers"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 10s
     networks:
       - internal
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+    # NOT published: sadece internal network'ten erişim
 
+  # ============== Redis ==============
   redis:
     image: redis:7-alpine
+    container_name: tc-redis
     restart: unless-stopped
     command: >
       redis-server
-      --appendonly yes
-      --appendfsync everysec
       --maxmemory 256mb
-      --maxmemory-policy allkeys-lru
+      --maxmemory-policy noeviction
+      --appendonly yes
+      --requirepass ${REDIS_PASSWORD}
     volumes:
-      - redisdata:/data
+      - redis-data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
     networks:
       - internal
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
 
+  # ============== API Server ==============
   api:
     build:
       context: ../../apps/api
       dockerfile: Dockerfile
+    container_name: tc-api
     restart: unless-stopped
-    environment:
-      APP_ENV: ${APP_ENV:-production}
-      PORT: 8080
-      DATABASE_URL: postgres://tester:${DB_PASSWORD}@postgres:5432/testers?sslmode=disable
-      REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
-      IYZICO_API_KEY: ${IYZICO_API_KEY:-}
-      IYZICO_SECRET_KEY: ${IYZICO_SECRET_KEY:-}
-      IYZICO_BASE_URL: ${IYZICO_BASE_URL:-https://api.iyzico.com}
-      DOMAIN: ${DOMAIN:-testerscomm.net}
-      LOG_LEVEL: ${LOG_LEVEL:-info}
-      SENTRY_DSN: ${SENTRY_DSN:-}
-    networks:
-      - internal
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["/app/api", "serve"]
+    environment:
+      APP_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgres://tester:${DB_PASSWORD}@postgres:5432/testers?sslmode=disable
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      JWT_SECRET: ${JWT_SECRET}
+      IYZICO_API_KEY: ${IYZICO_API_KEY}
+      IYZICO_SECRET_KEY: ${IYZICO_SECRET_KEY}
+      IYZICO_BASE_URL: ${IYZICO_BASE_URL}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      DOMAIN: ${DOMAIN}
+      ORCHESTRATOR_API_TOKEN: ${ORCHESTRATOR_API_TOKEN}
+      PUBLIC_API_URL: https://api.${DOMAIN}
+      PUBLIC_WEB_URL: https://${DOMAIN}
+      LOG_LEVEL: info
+    networks:
+      - proxy
+      - internal
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/liveness"]
       interval: 30s
@@ -83,124 +110,106 @@ services:
     logging:
       driver: json-file
       options:
-        max-size: "10m"
-        max-file: "3"
+        max-size: "50m"
+        max-file: "5"
 
+  # ============== Worker (Asynq) ==============
   worker:
     build:
       context: ../../apps/api
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.worker
+    container_name: tc-worker
     restart: unless-stopped
-    environment:
-      APP_ENV: ${APP_ENV:-production}
-      DATABASE_URL: postgres://tester:${DB_PASSWORD}@postgres:5432/testers?sslmode=disable
-      REDIS_URL: redis://redis:6379/0
-      LOG_LEVEL: ${LOG_LEVEL:-info}
-    networks:
-      - internal
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["/app/worker"]
+    environment:
+      APP_ENV: production
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      RUNNER_URL: ${ORCHESTRATOR_URL}
+      RUNNER_API_TOKEN: ${ORCHESTRATOR_API_TOKEN}
+      ORCHESTRATOR_API_TOKEN: ${ORCHESTRATOR_API_TOKEN}
+      LOG_LEVEL: info
+    networks:
+      - internal
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: "30m"
         max-file: "3"
 
+  # ============== Scheduler ==============
   scheduler:
     build:
       context: ../../apps/api
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.scheduler
+    container_name: tc-scheduler
     restart: unless-stopped
-    environment:
-      APP_ENV: ${APP_ENV:-production}
-      DATABASE_URL: postgres://tester:${DB_PASSWORD}@postgres:5432/testers?sslmode=disable
-      REDIS_URL: redis://redis:6379/0
-      LOG_LEVEL: ${LOG_LEVEL:-info}
-    networks:
-      - internal
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    command: ["/app/scheduler"]
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  asynqmon:
-    image: hibiken/asynqmon:latest
-    restart: unless-stopped
     environment:
-      REDIS_URL: redis://redis:6379
+      APP_ENV: production
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      LOG_LEVEL: info
     networks:
       - internal
-    depends_on:
-      redis:
-        condition: service_healthy
-    logging:
-      driver: json-file
-      options:
-        max-size: "5m"
-        max-file: "2"
 
+  # ============== Asynqmon (Queue UI) ==============
+  asynqmon:
+    image: hibiken/asynqmon:latest
+    container_name: tc-asynqmon
+    restart: unless-stopped
+    depends_on:
+      - redis
+    environment:
+      REDIS_ADDR: redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      ASYNQMON_BASIC_AUTH_USER: ${ASYNQMON_USER}
+      ASYNQMON_BASIC_AUTH_PASS: ${ASYNQMON_PASS}
+    networks:
+      - internal
+    # Nginx üzerinden /queue path'inde serve edilir
+
+  # ============== Web (Next.js) ==============
   web:
     build:
       context: ../../apps/web
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: https://api.${DOMAIN}
+    container_name: tc-web
     restart: unless-stopped
+    depends_on:
+      - api
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_API_URL: https://api.${DOMAIN:-testerscomm.net}
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: https://api.${DOMAIN}
       INTERNAL_API_URL: http://api:8080
-      NEXTAUTH_URL: https://${DOMAIN:-testerscomm.net}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:?NEXTAUTH_SECRET is required}
-      NEXT_PUBLIC_SITE_URL: https://${DOMAIN:-testerscomm.net}
     networks:
-      - internal
-    depends_on:
-      - api
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     logging:
       driver: json-file
       options:
-        max-size: "10m"
+        max-size: "30m"
         max-file: "3"
-
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - internal
-    depends_on:
-      - web
-      - api
-      - asynqmon
-    logging:
-      driver: json-file
-      options:
-        max-size: "5m"
-        max-file: "3"
-
-volumes:
-  pgdata:
-  redisdata:
-  caddy_data:
-  caddy_config:
 
 networks:
+  proxy:
+    driver: bridge
   internal:
     driver: bridge
+
+volumes:
+  postgres-data:
+  redis-data:

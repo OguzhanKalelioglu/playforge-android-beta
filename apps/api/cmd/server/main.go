@@ -12,12 +12,16 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/hibiken/asynq"
 	"go.uber.org/zap"
 
 	"github.com/testerscommunity/api/internal/config"
 	"github.com/testerscommunity/api/internal/db"
 	"github.com/testerscommunity/api/internal/handler"
 	"github.com/testerscommunity/api/internal/lib"
+	"github.com/testerscommunity/api/internal/middleware"
+	"github.com/testerscommunity/api/internal/repository"
+	"github.com/testerscommunity/api/internal/service"
 )
 
 func main() {
@@ -48,6 +52,31 @@ func main() {
 	}
 	defer rdb.Close()
 
+	// Asynq client
+	asynqRedis, err := asynq.ParseRedisURI(cfg.RedisURL)
+	if err != nil {
+		logger.Fatal("asynq redis parse failed", zap.Error(err))
+	}
+	asynqClient := asynq.NewClient(asynqRedis)
+	defer asynqClient.Close()
+
+	// JWT
+	jwtMgr := lib.NewJWTManager(cfg.JWTSecret)
+	middleware.SetDefaultJWT(jwtMgr)
+
+	// Repositories
+	userRepo := repository.NewUserRepository(pg.Pool)
+	sessionRepo := repository.NewSessionRepository(pg.Pool)
+	planRepo := repository.NewPlanRepository(pg.Pool)
+	orderRepo := repository.NewOrderRepository(pg.Pool)
+	paymentRepo := repository.NewPaymentRepository(pg.Pool)
+	testRepo := repository.NewTestRepository(pg.Pool)
+
+	// Services
+	authSvc := service.NewAuthService(userRepo, sessionRepo, jwtMgr)
+	iyzico := service.NewIyzicoClient(logger)
+	orderSvc := service.NewOrderService(orderRepo, planRepo, testRepo, paymentRepo, iyzico, asynqClient, logger)
+
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -67,23 +96,38 @@ func main() {
 	}
 	r.Use(cors.New(corsConfig))
 
+	// Health
 	healthHandler := handler.NewHealthHandler(pg.Pool, rdb)
 	r.GET("/health", healthHandler.Health)
 	r.GET("/liveness", healthHandler.Liveness)
 
-	// Activity handler (orchestrator'dan step event'leri alır)
-	activityHandler := handler.NewActivityHandler(pg.Pool, cfg.OrchestratorAPIToken, logger)
-	activityHandler.Register(r)
+	// Auth
+	authH := handler.NewAuthHandler(authSvc, logger)
+	authH.Register(r)
 
-	api := r.Group("/api/v1")
-	{
-		api.GET("/ping", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{
-				"message": "pong",
-				"time":    time.Now().UTC().Format(time.RFC3339),
-			})
+	// Plans, Orders
+	orderH := handler.NewOrderHandler(orderSvc, asynqClient, logger)
+	orderH.Register(r)
+
+	// Tests
+	testH := handler.NewTestHandler(pg.Pool, logger)
+	testH.Register(r)
+
+	// Admin
+	adminH := handler.NewAdminHandler(pg.Pool, logger)
+	adminH.Register(r)
+
+	// Activity (orchestrator'dan)
+	activityH := handler.NewActivityHandler(pg.Pool, cfg.OrchestratorAPIToken, logger)
+	activityH.Register(r)
+
+	// Legacy ping
+	r.GET("/api/v1/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "pong",
+			"time":    time.Now().UTC().Format(time.RFC3339),
 		})
-	}
+	})
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,

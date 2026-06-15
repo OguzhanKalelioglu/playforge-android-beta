@@ -6,12 +6,14 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/hibiken/asynq"
 	"go.uber.org/zap"
 
 	"github.com/testerscommunity/api/internal/config"
 	"github.com/testerscommunity/api/internal/lib"
+	"github.com/testerscommunity/api/internal/worker"
 )
 
 func main() {
@@ -28,18 +30,32 @@ func main() {
 	}
 	defer logger.Sync()
 
-	redisOpt, err := asynq.ParseRedisURL(cfg.RedisURL)
+	redisOpt, err := asynq.ParseRedisURI(cfg.RedisURL)
 	if err != nil {
 		logger.Fatal("redis url parse failed", zap.Error(err))
 	}
 
-	mux := asynq.NewServeMux()
-	mux.Use(lib.LoggingMiddleware(logger))
+	// Runner client (orchestrator'a HTTP çağrı)
+	runnerURL := os.Getenv("RUNNER_URL")
+	if runnerURL == "" {
+		runnerURL = "http://127.0.0.1:9000"
+	}
+	runnerToken := os.Getenv("RUNNER_API_TOKEN")
+	if runnerToken == "" {
+		runnerToken = cfg.OrchestratorAPIToken
+	}
+	runner := worker.NewRunnerClient(runnerURL, runnerToken, logger)
 
-	// Worker handlers buraya eklenecek (Hafta 5-6)
-	// mux.HandleFunc(tasks.TypeTestStart, handlers.HandleTestStart)
-	// mux.HandleFunc(tasks.TypeDailyEngagement, handlers.HandleDailyEngagement)
-	// mux.HandleFunc(tasks.TypeWriteReview, handlers.HandleWriteReview)
+	mux := asynq.NewServeMux()
+	mux.Use(worker.RecoveryMiddleware(logger))
+	mux.Use(worker.LoggingMiddleware(logger))
+	mux.Use(worker.TimeoutMiddleware(15 * time.Minute))
+
+	// Task handler'ları register
+	mux.HandleFunc(string(cfg.TaskTypeTestStart), worker.NewTestStartHandler(runner, logger).ProcessTask)
+	mux.HandleFunc(string(cfg.TaskTypeDailyEngagement), worker.NewDailyEngagementHandler(runner, logger).ProcessTask)
+	mux.HandleFunc(string(cfg.TaskTypeWriteReview), worker.NewWriteReviewHandler(runner, logger).ProcessTask)
+	mux.HandleFunc(string(cfg.TaskTypeLoginGoogle), worker.NewLoginGoogleHandler(runner, logger).ProcessTask)
 
 	srv := asynq.NewServer(redisOpt, asynq.Config{
 		Concurrency: 10,
@@ -48,11 +64,14 @@ func main() {
 			"default":  3,
 			"low":      1,
 		},
-		Logger: &lib.AsynqLogger{Logger: logger},
+		Logger:       &lib.AsynqLogger{Logger: logger},
+		BaseContext: func() context.Context { return context.Background() },
 	})
 
 	go func() {
-		logger.Info("worker starting", zap.Int("concurrency", 10))
+		logger.Info("worker starting",
+			zap.Int("concurrency", 10),
+			zap.String("runner_url", runnerURL))
 		if err := srv.Run(mux); err != nil {
 			logger.Fatal("worker failed", zap.Error(err))
 		}
@@ -64,5 +83,4 @@ func main() {
 
 	logger.Info("worker shutting down...")
 	srv.Shutdown()
-	_ = context.Background()
 }

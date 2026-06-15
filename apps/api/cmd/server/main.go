@@ -71,6 +71,10 @@ func main() {
 	r.GET("/health", healthHandler.Health)
 	r.GET("/liveness", healthHandler.Liveness)
 
+	// Activity handler (orchestrator'dan step event'leri alır)
+	activityHandler := handler.NewActivityHandler(pg.Pool, cfg.OrchestratorAPIToken, logger)
+	activityHandler.Register(r)
+
 	api := r.Group("/api/v1")
 	{
 		api.GET("/ping", func(c *gin.Context) {

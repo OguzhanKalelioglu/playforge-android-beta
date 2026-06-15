@@ -12,6 +12,7 @@ import (
 
 	"github.com/testerscommunity/api/internal/config"
 	"github.com/testerscommunity/api/internal/lib"
+	"github.com/testerscommunity/api/internal/scheduler"
 )
 
 func main() {
@@ -28,7 +29,7 @@ func main() {
 	}
 	defer logger.Sync()
 
-	redisOpt, err := asynq.ParseRedisURL(cfg.RedisURL)
+	redisOpt, err := asynq.ParseRedisURI(cfg.RedisURL)
 	if err != nil {
 		logger.Fatal("redis url parse failed", zap.Error(err))
 	}
@@ -38,18 +39,33 @@ func main() {
 		location = time.UTC
 	}
 
-	scheduler := asynq.NewScheduler(redisOpt, &asynq.SchedulerOpts{
+	sched := asynq.NewScheduler(redisOpt, &asynq.SchedulerOpts{
 		Location: location,
 		Logger:   &lib.AsynqLogger{Logger: logger},
 	})
 
-	// Periodic jobs buraya eklenecek (Hafta 5-6)
-	// _, _ = scheduler.Register("@every 1h", asynq.NewTask(tasks.TypeCleanupStaleSessions, nil))
-	// _, _ = scheduler.Register("@every 24h", asynq.NewTask(tasks.TypeCheckWarmingAccounts, nil))
+	registrar := scheduler.NewRegistrar(sched, logger)
+
+	// Periyodik job örneği: stale assignment cleanup
+	// (her gün 04:00 — eski pending assignment'ları temizle)
+	if _, err := sched.Register("0 4 * * *",
+		asynq.NewTask("system:cleanup_stale", nil),
+	); err != nil {
+		logger.Warn("daily cleanup registration failed", zap.Error(err))
+	}
+
+	// Periyodik job: warming hesapları active'e çevir (3 gün geçmiş)
+	if _, err := sched.Register("0 5 * * *",
+		asynq.NewTask("system:check_warming", nil),
+	); err != nil {
+		logger.Warn("warming check registration failed", zap.Error(err))
+	}
+
+	_ = registrar // Plan kayıtları scheduler.Register14DayPlan() üzerinden tetiklenir
 
 	go func() {
 		logger.Info("scheduler starting", zap.String("timezone", location.String()))
-		if err := scheduler.Run(); err != nil {
+		if err := sched.Run(); err != nil {
 			logger.Fatal("scheduler failed", zap.Error(err))
 		}
 	}()
@@ -59,5 +75,5 @@ func main() {
 	<-quit
 
 	logger.Info("scheduler shutting down...")
-	scheduler.Shutdown()
+	sched.Shutdown()
 }

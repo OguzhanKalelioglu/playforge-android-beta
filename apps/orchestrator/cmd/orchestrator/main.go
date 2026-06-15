@@ -21,6 +21,7 @@ import (
 	"github.com/testerscommunity/orchestrator/internal/health"
 	"github.com/testerscommunity/orchestrator/internal/lib"
 	"github.com/testerscommunity/orchestrator/internal/lifecycle"
+	"github.com/testerscommunity/orchestrator/internal/taskrunner"
 )
 
 func main() {
@@ -41,7 +42,8 @@ func main() {
 		zap.String("env", cfg.AppEnv),
 		zap.Int("emulators", cfg.EmulatorCount),
 		zap.Bool("auto_start", cfg.AutoStartEmul),
-		zap.String("compose_project", cfg.ComposeProject))
+		zap.String("appium_url", cfg.AppiumURL),
+		zap.String("activity_api_url", cfg.ActivityAPIURL))
 
 	adbClient := adb.NewClient(cfg.AdbHost, cfg.AdbPort)
 	if err := adbClient.StartADBServer(); err != nil {
@@ -62,6 +64,24 @@ func main() {
 		CheckInterval: time.Duration(cfg.CheckInterval) * time.Second,
 	})
 
+	// Activity sink (orchestrator → API)
+	activitySink := taskrunner.NewActivitySink(
+		cfg.ActivityAPIURL,
+		cfg.ActivityAPIToken,
+		cfg.ActivityFallbackDir,
+		logger,
+	)
+
+	// Task runner
+	runner := taskrunner.NewRunner(taskrunner.Config{
+		Pool:          pool,
+		AppiumURL:     cfg.AppiumURL,
+		ActivitySink:  activitySink,
+		Logger:        logger,
+		Watchdog:      time.Duration(cfg.TaskWatchdogMin) * time.Minute,
+		ScreenshotDir: cfg.ScreenshotDir,
+	})
+
 	managerCtx, managerCancel := context.WithCancel(context.Background())
 	defer managerCancel()
 
@@ -71,13 +91,20 @@ func main() {
 		}
 	}()
 
+	// Activity sink start
+	sinkCtx, sinkCancel := context.WithCancel(context.Background())
+	defer sinkCancel()
+	activitySink.Start(sinkCtx)
+
+	// HTTP server
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.New()
 	r.Use(gin.Recovery(), lib.RequestLogger(logger))
 
-	srv := api.NewServer(pool, manager, logger, cfg.APIToken)
+	taskHandler := api.NewTaskHandler(runner, logger)
+	srv := api.NewServer(pool, manager, taskHandler, logger, cfg.APIToken)
 	srv.Register(r)
 
 	httpSrv := &http.Server{
@@ -108,6 +135,8 @@ func main() {
 		logger.Error("http shutdown error", zap.Error(err))
 	}
 
+	sinkCancel()
+	activitySink.Close()
 	managerCancel()
 	time.Sleep(2 * time.Second)
 

@@ -1,6 +1,7 @@
 package emulator
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -69,6 +70,54 @@ func (p *Pool) Acquire() (*Emulator, error) {
 		}
 	}
 	return nil, fmt.Errorf("no available emulator (all %d busy or not ready)", p.count)
+}
+
+// AcquireForTest, ready durumda bir emulator alır ve busy yapar (atomic CAS)
+// testID/assignmentID ile işaretlenir, aynı anda iki farklı test'in
+// aynı emulator'ü almasını engeller.
+// Not: ready yoksa anında hata döner. Blocking için AcquireForTestBlocking kullan.
+func (p *Pool) AcquireForTest(testID, assignmentID string) (*Emulator, error) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	for _, e := range p.emulators {
+		if e.Status == StatusReady {
+			e.Status = StatusBusy
+			e.TesterID = assignmentID // assignmentID geçici olarak tutulur
+			e.LastUsed = time.Now()
+			out := *e
+			return &out, nil
+		}
+	}
+	return nil, fmt.Errorf("no available emulator (all %d busy or not ready)", p.count)
+}
+
+// AcquireForTestBlocking, ready duruma gelene kadar bekler (max 10dk default)
+// Tek mutex critical section içinde CAS yapar
+func (p *Pool) AcquireForTestBlocking(ctx context.Context, testID, assignmentID string, pollInterval time.Duration) (*Emulator, error) {
+	if pollInterval == 0 {
+		pollInterval = 5 * time.Second
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
+		em, err := p.AcquireForTest(testID, assignmentID)
+		if err == nil {
+			return em, nil
+		}
+
+		// Wait and retry
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(pollInterval):
+		}
+	}
 }
 
 func (p *Pool) Release(serial string) error {

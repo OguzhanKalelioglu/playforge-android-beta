@@ -28,6 +28,12 @@ type Config struct {
 	Domain               string
 	LogLevel             string
 	SentryDSN            string
+
+	// Task types (Asynq'da kullanılır)
+	TaskTypeTestStart        string
+	TaskTypeDailyEngagement  string
+	TaskTypeWriteReview      string
+	TaskTypeLoginGoogle      string
 }
 
 func Load() (*Config, error) {
@@ -59,6 +65,10 @@ func Load() (*Config, error) {
 		Domain:               viper.GetString("DOMAIN"),
 		LogLevel:             viper.GetString("LOG_LEVEL"),
 		SentryDSN:            viper.GetString("SENTRY_DSN"),
+		TaskTypeTestStart:        "test_start",
+		TaskTypeDailyEngagement:  "daily_engagement",
+		TaskTypeWriteReview:      "write_review",
+		TaskTypeLoginGoogle:      "login_google",
 	}
 
 	if err := cfg.validate(); err != nil {

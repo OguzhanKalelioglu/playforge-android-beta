@@ -1,0 +1,99 @@
+name: testers-minipc-deploy
+
+# ============================================
+# Mini PC Top-Level Stack
+# Appium server + orchestrator + 25 emulator
+# ============================================
+
+services:
+  # ============== Appium Server ==============
+  appium:
+    image: appium/appium:2.11.0
+    container_name: tc-appium
+    restart: unless-stopped
+    command: >
+      appium
+      --address 0.0.0.0
+      --port 4723
+      --base-path /
+      --allow-insecure uiautomator2_chromedriver_autodownload
+    ports:
+      - "4723:4723"
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:4723/status | grep -q 'value' || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+    networks:
+      - appium-net
+
+  # ============== Orchestrator (Go) ==============
+  orchestrator:
+    build:
+      context: ../../../apps/orchestrator
+      dockerfile: Dockerfile
+    container_name: tc-orchestrator
+    restart: unless-stopped
+    depends_on:
+      appium:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      PORT: 9000
+      DATABASE_URL: postgres://tester:${DB_PASSWORD}@host.docker.internal:5432/testers?sslmode=disable
+      EMULATOR_MAX_INSTANCES: 25
+      AUTO_START_EMULATORS: "true"
+      EMULATOR_CHECK_INTERVAL: 60
+      ADB_HOST: 127.0.0.1
+      ADB_SERVER_PORT: 5037
+      APPIUM_URL: http://appium:4723
+      ACTIVITY_API_URL: http://host.docker.internal:8080/v1/activity
+      ACTIVITY_API_TOKEN: ${ORCHESTRATOR_API_TOKEN}
+      ACTIVITY_FALLBACK_DIR: /data/activity-fallback
+      TASK_WATCHDOG_MIN: 10
+      SCREENSHOT_DIR: /data/screenshots
+      ORCHESTRATOR_API_TOKEN: ${ORCHESTRATOR_API_TOKEN}
+      COMPOSE_PATH: /app/infra/minipc/docker-compose.yml
+      COMPOSE_PROJECT: testers-minipc
+      LOG_LEVEL: info
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../:/app:ro
+      - orchestrator-data:/data
+    ports:
+      - "9000:9000"
+    privileged: true
+    networks:
+      - appium-net
+      - emulator-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:9000/liveness"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # ============== Emulator'ler ==============
+  # Aşağıdaki 25 emulator tanımı infra/minipc/docker-compose.yml'da ayrı tutuluyor
+  # (orchestrator container'a mount edilir)
+
+networks:
+  appium-net:
+    driver: bridge
+  emulator-net:
+    driver: bridge
+
+volumes:
+  orchestrator-data:

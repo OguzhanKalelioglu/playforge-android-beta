@@ -14,20 +14,22 @@ import (
 )
 
 type Server struct {
-	Pool      *emulator.Pool
-	Lifecycle *lifecycle.Manager
-	Logger    *zap.Logger
-	APIToken  string
-	StartedAt time.Time
+	Pool        *emulator.Pool
+	Lifecycle   *lifecycle.Manager
+	TaskHandler *TaskHandler
+	Logger      *zap.Logger
+	APIToken    string
+	StartedAt   time.Time
 }
 
-func NewServer(pool *emulator.Pool, lifecycle *lifecycle.Manager, logger *zap.Logger, token string) *Server {
+func NewServer(pool *emulator.Pool, lifecycle *lifecycle.Manager, taskHandler *TaskHandler, logger *zap.Logger, token string) *Server {
 	return &Server{
-		Pool:      pool,
-		Lifecycle: lifecycle,
-		Logger:    logger,
-		APIToken:  token,
-		StartedAt: time.Now(),
+		Pool:        pool,
+		Lifecycle:   lifecycle,
+		TaskHandler: taskHandler,
+		Logger:      logger,
+		APIToken:    token,
+		StartedAt:   time.Now(),
 	}
 }
 

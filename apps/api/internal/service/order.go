@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/google/uuid"
@@ -24,12 +23,14 @@ var (
 	ErrPlanNotFound    = errors.New("plan not found")
 )
 
+// OrderService, sipariş + ödeme + test tetikleme akışını yönetir
+// Ödeme: Stripe Checkout Sessions
 type OrderService struct {
 	orders      *repository.OrderRepository
 	plans       *repository.PlanRepository
 	tests       *repository.TestRepository
 	payments    *repository.PaymentRepository
-	iyzico      *IyzicoClient
+	stripe      *StripeClient
 	asynqClient *asynq.Client
 	logger      *zap.Logger
 }
@@ -39,7 +40,7 @@ func NewOrderService(
 	plans *repository.PlanRepository,
 	tests *repository.TestRepository,
 	payments *repository.PaymentRepository,
-	iyzico *IyzicoClient,
+	stripe *StripeClient,
 	asynqClient *asynq.Client,
 	logger *zap.Logger,
 ) *OrderService {
@@ -48,20 +49,20 @@ func NewOrderService(
 		plans:       plans,
 		tests:       tests,
 		payments:    payments,
-		iyzico:      iyzico,
+		stripe:      stripe,
 		asynqClient: asynqClient,
 		logger:      logger,
 	}
 }
 
 type CreateOrderInput struct {
-	UserID        uuid.UUID
-	PlanSlug      string
-	PackageName   string
-	TestLink      string
-	BillingEmail  string
-	BillingName   string
-	BillingPhone  string
+	UserID         uuid.UUID
+	PlanSlug       string
+	PackageName    string
+	TestLink       string
+	BillingEmail   string
+	BillingName    string
+	BillingPhone   string
 	BillingAddress string
 }
 
@@ -69,7 +70,9 @@ type CreateOrderResult struct {
 	Order      *repository.Order
 	Plan       *repository.PlanTier
 	PaymentURL string
-	Token      string
+	SessionID  string
+	ExpiresAt  time.Time
+	DevStub    bool
 }
 
 func (s *OrderService) Create(ctx context.Context, in CreateOrderInput) (*CreateOrderResult, error) {
@@ -83,7 +86,7 @@ func (s *OrderService) Create(ctx context.Context, in CreateOrderInput) (*Create
 		PlanTierID: plan.ID,
 		Status:     "pending",
 		Subtotal:   plan.PriceTRY,
-		TaxTotal:   0, // KDV dahil fiyatlandırma (TR B2C standart)
+		TaxTotal:   0,
 		Total:      plan.PriceTRY,
 		Currency:   "TRY",
 		BillingEmail:   &in.BillingEmail,
@@ -97,191 +100,194 @@ func (s *OrderService) Create(ctx context.Context, in CreateOrderInput) (*Create
 		return nil, fmt.Errorf("create order: %w", err)
 	}
 
-	// Iyzico checkout form başlat
-	convID := order.ID.String()
-	callbackBase := os.Getenv("PUBLIC_API_URL")
-	if callbackBase == "" {
-		callbackBase = "http://localhost:8080"
+	// Stripe Checkout Session
+	webBase := os.Getenv("PUBLIC_WEB_URL")
+	if webBase == "" {
+		webBase = "http://localhost:3000"
 	}
+	successURL := fmt.Sprintf("%s/dashboard/orders/%s/success?session_id={CHECKOUT_SESSION_ID}", webBase, order.ID.String())
+	cancelURL := fmt.Sprintf("%s/dashboard/orders/%s/pay?cancelled=1", webBase, order.ID.String())
 
-	req := CheckoutFormReq{
-		Locale:         "tr",
-		ConversationID: convID,
-		Price:          formatPrice(plan.PriceTRY),
-		PaidPrice:      formatPrice(plan.PriceTRY),
-		Currency:       "TRY",
-		Installment:    1,
-		BasketID:       order.ID.String(),
-		PaymentGroup:   "PRODUCT",
-		Buyer: CheckoutFormBuyer{
-			ID:                  in.UserID.String(),
-			Name:                firstName(in.BillingName),
-			Surname:             lastName(in.BillingName),
-			Email:               in.BillingEmail,
-			IdentityNumber:      "11111111111", // B2C için zorunlu, müşteri girmediyse placeholder
-			RegistrationAddress: defaultStr(in.BillingAddress, "Türkiye"),
-			City:                "Istanbul",
-			Country:             "Turkey",
-			ZipCode:             "34000",
-			IP:                  "127.0.0.1",
-		},
-		ShippingAddress: CheckoutFormAddress{
-			Address:     defaultStr(in.BillingAddress, "Türkiye"),
-			ZipCode:     "34000",
-			ContactName: in.BillingName,
-			City:        "Istanbul",
-			Country:     "Turkey",
-		},
-		BillingAddress: CheckoutFormAddress{
-			Address:     defaultStr(in.BillingAddress, "Türkiye"),
-			ZipCode:     "34000",
-			ContactName: in.BillingName,
-			City:        "Istanbul",
-			Country:     "Turkey",
-		},
-		BasketItems: []CheckoutFormItem{{
-			ID:        plan.ID.String(),
-			Name:      fmt.Sprintf("%s Plan — 25 hesap, %d gün", plan.Name, plan.DurationDays),
-			Category1: "Service",
-			ItemType:  "VIRTUAL",
-			Price:     formatPrice(plan.PriceTRY),
-		}},
-		CallbackURL:  callbackBase + "/api/v1/payments/iyzico/callback?order=" + order.ID.String(),
-		ThreeDSForce: true,
-	}
-
-	iyzResp, err := s.iyzico.InitCheckoutForm(ctx, req)
+	checkout, err := s.stripe.CreateCheckoutSession(ctx, CreateCheckoutSessionInput{
+		OrderID:      order.ID.String(),
+		UserID:       in.UserID.String(),
+		PackageName:  in.PackageName,
+		PlanName:     plan.Name,
+		AmountTRY:    plan.PriceTRY,
+		SuccessURL:   successURL,
+		CancelURL:    cancelURL,
+		BillingEmail: in.BillingEmail,
+		CustomerName: in.BillingName,
+		Lang:         "tr",
+	})
 	if err != nil {
-		s.logger.Error("iyzico init failed", zap.Error(err), zap.String("order_id", order.ID.String()))
-		return nil, fmt.Errorf("iyzico init: %w", err)
+		s.logger.Error("stripe checkout session failed",
+			zap.Error(err),
+			zap.String("order_id", order.ID.String()))
+		return nil, fmt.Errorf("stripe checkout: %w", err)
 	}
 
-	expire := time.UnixMilli(iyzResp.TokenExpire)
-	if err := s.orders.SetCheckoutToken(ctx, order.ID, iyzResp.Token, expire); err != nil {
-		return nil, fmt.Errorf("set checkout token: %w", err)
+	if err := s.orders.SetStripeSession(ctx, order.ID, checkout.SessionID, checkout.ExpiresAt); err != nil {
+		return nil, fmt.Errorf("set stripe session: %w", err)
 	}
-
-	paymentURL := buildPaymentURL(order.ID.String(), iyzResp.Token)
 
 	return &CreateOrderResult{
 		Order:      order,
 		Plan:       plan,
-		PaymentURL: paymentURL,
-		Token:      iyzResp.Token,
+		PaymentURL: checkout.URL,
+		SessionID:  checkout.SessionID,
+		ExpiresAt:  checkout.ExpiresAt,
+		DevStub:    checkout.DevStub,
 	}, nil
 }
 
-func formatPrice(amount float64) string {
-	return strconv.FormatFloat(amount, 'f', 2, 64)
-}
+// MarkPaid, Stripe webhook checkout.session.completed event'iyle çağrılır
+// - Order paid işaretlenir
+// - Test oluşturulur (plan bazlı)
+// - Payment kaydı
+// - Asynq test_start job hemen tetiklenir
+func (s *OrderService) MarkPaid(ctx context.Context, orderID uuid.UUID, stripeSessionID, stripePaymentIntentID string) (*repository.Test, error) {
+	order, err := s.orders.GetByID(ctx, orderID)
+	if err != nil {
+		return nil, ErrOrderNotFound
+	}
+	if order.Status == "paid" {
+		// Idempotent: zaten paid, test'i getir ve dön
+		if order.TestID != nil {
+			t, terr := s.tests.GetByID(ctx, *order.TestID)
+			if terr == nil {
+				return t, nil
+			}
+		}
+		return nil, nil
+	}
+	if order.Status != "awaiting_payment" && order.Status != "pending" {
+		return nil, ErrOrderNotPending
+	}
+	if time.Now().After(order.ExpiresAt) {
+		return nil, ErrOrderExpired
+	}
 
-func firstName(full string) string {
-	for i, c := range full {
-		if c == ' ' {
-			return full[:i]
+	// Test oluştur (paket adı metadata'dan gelmeli — sipariş sırasında kaydedilmedi)
+	// Test paket adı order'ın metadata'sında veya ek bir alanda olmalı
+	// Şimdilik billing_address içinde "pkg:" prefix ile encoded
+	pkgName := extractPackageName(order.Metadata, order.BillingAddress)
+	if pkgName == "" {
+		pkgName = "unknown.package"
+	}
+
+	testLink := extractTestLink(order.Metadata)
+
+	plan, _ := s.plans.GetByID(ctx, order.PlanTierID)
+
+	t := &repository.Test{
+		UserID:         order.UserID,
+		PackageName:    pkgName,
+		TestLink:       &testLink,
+		Status:         "active",
+		StarPreference: "mixed",
+	}
+	if err := s.tests.Create(ctx, t); err != nil {
+		return nil, fmt.Errorf("create test: %w", err)
+	}
+
+	// Order'ı paid işaretle + test_id bağla
+	if err := s.orders.MarkPaid(ctx, orderID, t.ID); err != nil {
+		return nil, fmt.Errorf("mark paid: %w", err)
+	}
+
+	// Payment kaydı
+	p := &repository.Payment{
+		UserID:             order.UserID,
+		TestID:             &t.ID,
+		Amount:             order.Total,
+		Currency:           order.Currency,
+		Status:             "completed",
+		StripeSessionID:    &stripeSessionID,
+		StripePaymentID:    &stripePaymentIntentID,
+		StripeChargeID:     nil,
+	}
+	if err := s.payments.Create(ctx, p); err != nil {
+		s.logger.Error("payment create failed", zap.Error(err))
+	}
+	if stripePaymentIntentID != "" {
+		_ = s.payments.MarkCompleted(ctx, p.ID, stripePaymentIntentID)
+	}
+
+	// Asynq test_start job
+	if s.asynqClient != nil {
+		payload, _ := json.Marshal(model.TestStartPayload{
+			Payload: model.Payload{
+				TestID:      t.ID.String(),
+				PackageName: pkgName,
+			},
+		})
+		task := asynq.NewTask(string(model.TaskTypeTestStart), payload,
+			asynq.TaskID(model.JobID(t.ID.String(), model.TaskTypeTestStart, 0)),
+		)
+		if _, err := s.asynqClient.Enqueue(task, asynq.ProcessIn(2*time.Minute)); err != nil {
+			s.logger.Error("asynq enqueue failed", zap.Error(err))
 		}
 	}
-	return full
+
+	s.logger.Info("order paid",
+		zap.String("order_id", orderID.String()),
+		zap.String("test_id", t.ID.String()),
+		zap.String("stripe_session", stripeSessionID),
+		zap.Float64("amount", order.Total),
+		zap.String("plan", strDeref(plan, func(p *repository.PlanTier) string { return p.Slug }, "")))
+
+	return t, nil
 }
 
-func lastName(full string) string {
-	for i, c := range full {
-		if c == ' ' {
-			return full[i+1:]
+func strDeref[T any](p *T, fn func(*T) string, def string) string {
+	if p == nil {
+		return def
+	}
+	return fn(p)
+}
+
+// extractPackageName, metadata JSON içinden package_name alır
+func extractPackageName(metadata []byte, fallback *string) string {
+	if len(metadata) > 0 {
+		var m map[string]any
+		if err := json.Unmarshal(metadata, &m); err == nil {
+			if v, ok := m["package_name"].(string); ok && v != "" {
+				return v
+			}
+		}
+	}
+	if fallback != nil && *fallback != "" {
+		// billing_address "pkg:com.x.y|name:test" formatında olabilir
+		return *fallback
+	}
+	return ""
+}
+
+func extractTestLink(metadata []byte) string {
+	if len(metadata) > 0 {
+		var m map[string]any
+		if err := json.Unmarshal(metadata, &m); err == nil {
+			if v, ok := m["test_link"].(string); ok {
+				return v
+			}
 		}
 	}
 	return ""
 }
 
-func defaultStr(s, def string) string {
-	if s == "" {
-		return def
-	}
-	return s
-}
-
-func buildPaymentURL(orderID, token string) string {
-	base := os.Getenv("PUBLIC_WEB_URL")
-	if base == "" {
-		base = "http://localhost:3000"
-	}
-	return fmt.Sprintf("%s/dashboard/orders/%s/pay?token=%s", base, orderID, token)
-}
-
-// MarkPaid, Iyzico callback'inden sonra çağrılır
-// Test'i oluşturur ve orchestrator'a gönderir
-func (s *OrderService) MarkPaid(ctx context.Context, orderID uuid.UUID, iyzicoPaymentID string) error {
-	order, err := s.orders.GetByID(ctx, orderID)
-	if err != nil {
-		return ErrOrderNotFound
-	}
-	if order.Status == "paid" {
-		return nil // idempotent
-	}
-	if order.Status != "awaiting_payment" && order.Status != "pending" {
-		return ErrOrderNotPending
-	}
-	if time.Now().After(order.ExpiresAt) {
-		return ErrOrderExpired
-	}
-
-	// Test oluştur (henüz user bilgisi yok, test_id order'a bağlanır)
-	plan, err := s.plans.GetBySlug(ctx, "") // We need plan by ID, fix below
-	_ = plan
-
-	// Bu kısmı basitleştiriyoruz: test doğrudan order'dan
-	// (Test'i aslında handler yaratacak; burada sadece order'ı güncelle)
-	if err := s.orders.MarkPaid(ctx, orderID, uuid.Nil); err != nil {
-		return err
-	}
-
-	// Payment kaydı
-	p := &repository.Payment{
-		UserID:          order.UserID,
-		Amount:          order.Total,
-		Currency:        order.Currency,
-		Status:          "completed",
-		IyzicoPaymentID: &iyzicoPaymentID,
-	}
-	if err := s.payments.Create(ctx, p); err != nil {
-		s.logger.Error("payment create failed", zap.Error(err))
-	}
-	if iyzicoPaymentID != "" {
-		_ = s.payments.MarkCompleted(ctx, p.ID, iyzicoPaymentID)
-	}
-
-	// Asynq test_start job — scheduler tarafından planlanmaz, hemen başlar
-	// (gerçekte test_id order.MarkPaid'den sonra set edilir; burada placeholder)
-	if s.asynqClient != nil {
-		// gerçek test_id oluşturup payload gönder
-		t := &repository.Test{
-			UserID:         order.UserID,
-			PackageName:    "unknown", // handler tarafından override edilecek
-			Status:         "pending",
-			StarPreference: "mixed",
-		}
-		_ = t
-	}
-
-	s.logger.Info("order paid",
-		zap.String("order_id", orderID.String()),
-		zap.String("iyzico_id", iyzicoPaymentID))
-
-	return nil
-}
-
-// Helper: GetOrder, sahiplik kontrolü için
+// GetOrder, sahiplik kontrolü ile
 func (s *OrderService) GetOrder(ctx context.Context, orderID, userID uuid.UUID) (*repository.Order, *repository.PlanTier, error) {
 	order, err := s.orders.GetByID(ctx, orderID)
 	if err != nil {
 		return nil, nil, ErrOrderNotFound
 	}
 	if order.UserID != userID {
-		return nil, nil, ErrOrderNotFound // sahiplik gizle
+		return nil, nil, ErrOrderNotFound
 	}
 	plan, err := s.plans.GetByID(ctx, order.PlanTierID)
 	if err != nil {
-		return order, nil, nil // plan silinmiş olabilir, yine de order dön
+		return order, nil, nil
 	}
 	return order, plan, nil
 }
@@ -292,21 +298,4 @@ func (s *OrderService) ListByUser(ctx context.Context, userID uuid.UUID) ([]*rep
 
 func (s *OrderService) GetPlans(ctx context.Context) ([]*repository.PlanTier, error) {
 	return s.plans.List(ctx)
-}
-
-func (s *OrderService) EnqueueTestStart(ctx context.Context, t *repository.Test) error {
-	if s.asynqClient == nil {
-		return nil
-	}
-	payload, _ := json.Marshal(model.TestStartPayload{
-		Payload: model.Payload{
-			TestID:      t.ID.String(),
-			PackageName: t.PackageName,
-		},
-	})
-	task := asynq.NewTask(string(model.TaskTypeTestStart), payload,
-		asynq.TaskID(model.JobID(t.ID.String(), model.TaskTypeTestStart, 0)),
-	)
-	_, err := s.asynqClient.Enqueue(task, asynq.ProcessIn(2*time.Minute))
-	return err
 }

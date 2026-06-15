@@ -1,0 +1,186 @@
+{
+  "common": {
+    "appName": "PlayForge",
+    "tagline": "Android uygulama beta testi, 14 günde 25 gerçek testçi",
+    "login": "Giriş yap",
+    "register": "Kayıt ol",
+    "logout": "Çıkış",
+    "dashboard": "Panel",
+    "admin": "Yönetim",
+    "settings": "Ayarlar",
+    "language": "Dil",
+    "loading": "Yükleniyor…",
+    "error": "Bir sorun oluştu",
+    "back": "Geri",
+    "next": "İleri",
+    "cancel": "İptal",
+    "submit": "Gönder",
+    "save": "Kaydet",
+    "tryAgain": "Tekrar dene"
+  },
+  "marketing": {
+    "badge": "Google Play 14 günlük şartı için",
+    "heroTitle1": "25 hesap, 14 gün,",
+    "heroTitle2": "otomatik test.",
+    "heroSubtitle": "Uygulamanız 25 yönetilen Google hesabı tarafından indirilir, günlük kullanılır ve 14. günde yorumlanır. Siz sadece sonuçları izlersiniz.",
+    "ctaStart": "Test Başlat",
+    "ctaPricing": "Fiyatları Gör",
+    "stat1Label": "Eşzamanlı hesap",
+    "stat2Label": "Test süresi",
+    "stat3Label": "Ortalama başlangıç",
+    "featuresTitle": "Ne yapıyoruz",
+    "featuresSubtitle": "Uçtan uca otomatik. Siz sadece paket adını girip ödemeyi yaparsınız.",
+    "howTitle": "Nasıl çalışır",
+    "howSubtitle": "3 adım. Ödeme onayından 24 saat sonra başlar.",
+    "step": "ADIM",
+    "pricingTitle": "Fiyatlandırma",
+    "pricingSubtitle": "Paket başına tek ödeme. 14 günlük tam test.",
+    "perTest": "/ test",
+    "recommended": "Önerilen",
+    "choosePlan": "Bu Paketi Seç",
+    "faqTitle": "Sık sorulan sorular",
+    "legalTitle": "Yasal uyarı",
+    "legalBody": "Bu hizmet Google Play Store Hizmet Şartları'nın bazı maddelerini ihlal edebilir. Müşteri sözleşmemizde tüm risk paylaşımı detaylı açıklanmıştır. Hizmeti kullanmadan önce ve okuyun.",
+    "ctaFinalTitle": "Başlamak için hazır mısın?",
+    "ctaFinalSubtitle": "Dakikalar içinde hesap oluştur, paket adını gir, ödemeyi yap. Geri kalanını sistem halleder.",
+    "ctaFinal": "Hesap Oluştur",
+    "pricing": {
+      "basic": {
+        "name": "Basic",
+        "description": "Başlangıç için yeterli.",
+        "feature1": "12 Google Play tester hesabı",
+        "feature2": "14 günlük engagement",
+        "feature3": "Otomatik opt-in + indirme",
+        "feature4": "Günlük aktivite logları",
+        "feature5": "10 yorum (karışık puan)",
+        "feature6": "E-posta destek"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Yaygın seçim.",
+        "feature1": "20 Google Play tester hesabı",
+        "feature2": "Basic'in tüm özellikleri",
+        "feature3": "Haftalık ilerleme raporu",
+        "feature4": "Screenshot timeline",
+        "feature5": "Öncelikli destek (24s)",
+        "feature6": "WhatsApp bildirimleri"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Yüksek bütçeli ve sürekli yayınlar için.",
+        "feature1": "25 Google Play tester hesabı",
+        "feature2": "Pro'nun tüm özellikleri",
+        "feature3": "Premium ban koruma (rotasyonlu hesap)",
+        "feature4": "Dedicated account manager",
+        "feature5": "API erişimi",
+        "feature6": "SLA — 4 saat yanıt"
+      }
+    },
+    "features": {
+      "managed": {
+        "title": "25 yönetilen hesap",
+        "description": "Her biri kendi cihaz profiliyle (model, Android sürümü, dil, saat dilimi) farklı bir Google hesabı. Aynı anda çalışırlar."
+      },
+      "automation": {
+        "title": "14 günlük otomasyon",
+        "description": "Google'ın 14-günlük kapalı test eşiğini rahatça geçer. Günlük engagement, opt-in ve indirme dahil."
+      },
+      "live": {
+        "title": "Canlı ilerleme",
+        "description": "Her hesabın aktivitesini, screenshotları ve engagement dakikalarını dashboarddan anlık izleyin."
+      },
+      "reviews": {
+        "title": "Yorumlar dahil",
+        "description": "14. günde 10 organik görünümlü yorum, karışık puanla. Tonu ve dili seçebilirsiniz."
+      },
+      "warming": {
+        "title": "Yumuşak warming",
+        "description": "Yeni hesaplar 3 günlük warming döneminden geçer; organik davranış simülasyonu uygulanır."
+      },
+      "notifications": {
+        "title": "Bildirimler",
+        "description": "Ödeme onayı, test başlangıcı, günlük özet ve tamamlanma raporu e-posta ile gelir."
+      }
+    },
+    "how": {
+      "step1Title": "Paket adınızı girin",
+      "step1Body": "Google Play Console'daki paket adınızı ve kapalı test linkinizi forma yazın. 1 dakika.",
+      "step2Title": "Ödemeyi yapın",
+      "step2Body": "₺4.999'dan başlayan fiyatlarla — kredi kartı, banka kartı. Stripe altyapısı, 3D Secure, anlık onay.",
+      "step3Title": "Sonuçları izleyin",
+      "step3Body": "24 saat içinde 25 hesap opt-in yapar. Günlük engagement başlar. 14. gün rapor hazır."
+    },
+    "faqs": {
+      "q1": "Bu hizmet yasal mı?",
+      "a1": "Google Play Console Dağıtım Sözleşmesi, otomatik indirme ve yorum artırımını kısıtlar. Bu hizmet bu kuralların sınırında hareket eder. Müşteri sözleşmemiz risk paylaşımını detaylı açıklar — kullanmadan önce okuyun.",
+      "q2": "Test ne kadar sürede başlar?",
+      "a2": "Ödeme onayından sonra 24 saat içinde opt-in ve indirme başlar. 14 günlük döngü başlatılır.",
+      "q3": "Para iadesi var mı?",
+      "a3": "Test başlamadan önce tam iade. Başladıktan sonra kullanılmayan günler için kısmi iade (en fazla %50). İade politikamıza bakın.",
+      "q4": "Hangi ülkeler destekleniyor?",
+      "a4": "Şu anda Türkiye, ABD ve Avrupa. Paket adınız bu ülkelerde yayınlanıyorsa test yapılabilir.",
+      "q5": "Yorumlar gerçek mi?",
+      "a5": "Yorumlar gerçek hesaplardan yazılır, ancak Google ToS'una göre 'organik olmayan' sayılabilir. Bu risk müşteriye aittir.",
+      "q6": "Hesaplar banlenir mi?",
+      "a6": "Yumuşak warming ve organik davranış simülasyonu uyguluyoruz, ancak Google'ın algoritma değişiklikleri risk taşır. Enterprise pakette rotasyonlu hesap kullanıyoruz."
+    }
+  },
+  "auth": {
+    "loginTitle": "Tekrar hoş geldin",
+    "loginSubtitle": "Hesabınla giriş yap",
+    "email": "E-posta",
+    "password": "Şifre",
+    "emailPlaceholder": "sen@ornek.com",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Şifreni mi unuttun?",
+    "noAccount": "Hesabın yok mu?",
+    "signUp": "Kayıt ol",
+    "signingIn": "Giriş yapılıyor…",
+    "registerTitle": "Hesap oluştur",
+    "registerSubtitle": "İlk testine dakikalar içinde başla",
+    "name": "Ad soyad",
+    "namePlaceholder": "Ad Soyad",
+    "hasAccount": "Zaten hesabın var mı?",
+    "signIn": "Giriş yap",
+    "creating": "Oluşturuluyor…",
+    "termsNotice": "Kayıt olarak {terms} ve {privacy} kabul edersin.",
+    "passwordHint": "En az 8 karakter, bir rakam içermeli",
+    "emailInvalid": "Geçerli bir e-posta gir",
+    "passwordTooShort": "Şifre en az 8 karakter olmalı",
+    "nameRequired": "Ad zorunlu",
+    "loginError": "E-posta veya şifre hatalı",
+    "registerError": "Hesap oluşturulamadı"
+  },
+  "dashboard": {
+    "title": "Testlerim",
+    "subtitle": "{active} aktif test, {completed} tamamlandı.",
+    "subtitleEmpty": "Henüz aktif test yok.",
+    "newTest": "Yeni test",
+    "loadingError": "Testler yüklenemedi. Birazdan tekrar deneyin.",
+    "empty": {
+      "title": "Henüz test yok",
+      "description": "İlk kapalı testini başlat. Paket adını ve test linkini gir, ödemeyi yap, gerisini sistem halletsin.",
+      "action": "Yeni test oluştur"
+    },
+    "activeSection": "Devam eden",
+    "historySection": "Geçmiş",
+    "optIn": "{done}/{total} opt-in",
+    "reviews": "{count} yorum",
+    "endsAt": "Bitiş: {date}",
+    "startsAt": "Başlangıç: {date}"
+  },
+  "footer": {
+    "tagline": "Android uygulamaları için kapalı beta test hizmeti",
+    "product": "Ürün",
+    "productFeatures": "Özellikler",
+    "productHow": "Nasıl çalışır",
+    "productPricing": "Fiyatlandırma",
+    "legal": "Yasal",
+    "legalTerms": "Kullanım şartları",
+    "legalPrivacy": "Gizlilik politikası",
+    "legalRefund": "İade politikası",
+    "contact": "İletişim",
+    "emailUs": "Bize e-posta gönder",
+    "copyright": "© {year} PlayForge"
+  }
+}

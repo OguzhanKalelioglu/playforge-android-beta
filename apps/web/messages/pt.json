@@ -1,0 +1,186 @@
+{
+  "common": {
+    "appName": "PlayForge",
+    "tagline": "Testes beta de apps Android, 25 testadores reais em 14 dias",
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "logout": "Sair",
+    "dashboard": "Painel",
+    "admin": "Admin",
+    "settings": "Configurações",
+    "language": "Idioma",
+    "loading": "Carregando…",
+    "error": "Algo deu errado",
+    "back": "Voltar",
+    "next": "Próximo",
+    "cancel": "Cancelar",
+    "submit": "Enviar",
+    "save": "Salvar",
+    "tryAgain": "Tentar de novo"
+  },
+  "marketing": {
+    "badge": "Para o requisito de 14 dias do Google Play",
+    "heroTitle1": "25 contas, 14 dias,",
+    "heroTitle2": "testes automatizados.",
+    "heroSubtitle": "Seu app é baixado por 25 contas Google gerenciadas, usado diariamente e avaliado no dia 14. Você só acompanha os resultados.",
+    "ctaStart": "Iniciar teste",
+    "ctaPricing": "Ver preços",
+    "stat1Label": "Contas simultâneas",
+    "stat2Label": "Duração do teste",
+    "stat3Label": "Início médio",
+    "featuresTitle": "O que fazemos",
+    "featuresSubtitle": "Ponta a ponta. Você coloca o nome do pacote e paga. Cuidamos do resto.",
+    "howTitle": "Como funciona",
+    "howSubtitle": "3 passos. Começa em 24 horas após a confirmação do pagamento.",
+    "step": "PASSO",
+    "pricingTitle": "Preços",
+    "pricingSubtitle": "Um pagamento por pacote. Teste completo de 14 dias.",
+    "perTest": "/ teste",
+    "recommended": "Recomendado",
+    "choosePlan": "Escolher este plano",
+    "faqTitle": "Perguntas frequentes",
+    "legalTitle": "Aviso legal",
+    "legalBody": "Este serviço pode violar certos termos dos Termos de Serviço do Google Play Store. Nosso acordo de cliente detalha todo o compartilhamento de riscos. Antes de usar o serviço, leia os.",
+    "ctaFinalTitle": "Pronto para começar?",
+    "ctaFinalSubtitle": "Crie uma conta em minutos, digite o nome do pacote, pague. O sistema cuida do resto.",
+    "ctaFinal": "Criar conta",
+    "pricing": {
+      "basic": {
+        "name": "Básico",
+        "description": "Suficiente para começar.",
+        "feature1": "12 contas testadoras do Google Play",
+        "feature2": "14 dias de engajamento",
+        "feature3": "Opt-in + download automáticos",
+        "feature4": "Logs diários de atividade",
+        "feature5": "10 avaliações (notas mistas)",
+        "feature6": "Suporte por email"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "A escolha popular.",
+        "feature1": "20 contas testadoras do Google Play",
+        "feature2": "Tudo do Básico",
+        "feature3": "Relatório semanal de progresso",
+        "feature4": "Linha do tempo de capturas",
+        "feature5": "Suporte prioritário (24h)",
+        "feature6": "Notificações WhatsApp"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Para lançamentos de alto orçamento e contínuos.",
+        "feature1": "25 contas testadoras do Google Play",
+        "feature2": "Tudo do Pro",
+        "feature3": "Proteção anti-ban premium (contas rotativas)",
+        "feature4": "Gerente de conta dedicado",
+        "feature5": "Acesso à API",
+        "feature6": "SLA — resposta em 4h"
+      }
+    },
+    "features": {
+      "managed": {
+        "title": "25 contas gerenciadas",
+        "description": "Cada uma com seu próprio perfil de dispositivo (modelo, versão Android, idioma, fuso horário). Operam em paralelo."
+      },
+      "automation": {
+        "title": "14 dias automatizados",
+        "description": "Supera folga o limite de 14 dias de teste fechado do Google. Engajamento diário, opt-in e download incluídos."
+      },
+      "live": {
+        "title": "Progresso ao vivo",
+        "description": "Acompanhe atividade, capturas e minutos de engajamento de cada conta em tempo real pelo painel."
+      },
+      "reviews": {
+        "title": "Avaliações incluídas",
+        "description": "No dia 14: 10 avaliações com aparência orgânica, notas mistas. Você escolhe o tom e o idioma."
+      },
+      "warming": {
+        "title": "Aquecimento suave",
+        "description": "Novas contas passam por 3 dias de aquecimento com simulação de comportamento orgânico."
+      },
+      "notifications": {
+        "title": "Notificações",
+        "description": "Confirmação de pagamento, início do teste, resumo diário, relatório final — tudo por email."
+      }
+    },
+    "how": {
+      "step1Title": "Digite o nome do pacote",
+      "step1Body": "Digite o nome do pacote do Google Play Console e o link de teste fechado no formulário. 1 minuto.",
+      "step2Title": "Faça o pagamento",
+      "step2Body": "A partir de R$499 — cartão de crédito, débito. Infraestrutura Stripe, 3D Secure, confirmação instantânea.",
+      "step3Title": "Acompanhe os resultados",
+      "step3Body": "Em 24 horas, 25 contas fazem opt-in. Engajamento diário começa. Dia 14: relatório pronto."
+    },
+    "faqs": {
+      "q1": "Este serviço é legal?",
+      "a1": "O Acordo de Distribuição do Google Play Console restringe downloads automatizados e inflação de avaliações. Este serviço opera no limite dessas regras. Nosso acordo de cliente explica o compartilhamento de riscos em detalhe — leia antes de usar.",
+      "q2": "Em quanto tempo o teste começa?",
+      "a2": "Em 24 horas após a confirmação do pagamento, opt-in e download começam. O ciclo de 14 dias inicia.",
+      "q3": "Há reembolso?",
+      "a3": "Reembolso integral antes do início. Depois, reembolso parcial pelos dias não usados (até 50%). Veja nossa política de reembolso.",
+      "q4": "Quais países são suportados?",
+      "a4": "Atualmente Turquia, EUA e Europa. Se seu pacote é publicado nesses países, o teste pode rodar.",
+      "q5": "As avaliações são reais?",
+      "a5": "Avaliações são escritas por contas reais, mas podem ser consideradas 'não orgânicas' pelos ToS do Google. Esse risco é do cliente.",
+      "q6": "As contas podem ser banidas?",
+      "a6": "Aplicamos aquecimento suave e simulação de comportamento orgânico, mas mudanças no algoritmo do Google trazem risco. O plano Enterprise usa contas rotativas."
+    }
+  },
+  "auth": {
+    "loginTitle": "Bem-vindo de volta",
+    "loginSubtitle": "Entre na sua conta",
+    "email": "Email",
+    "password": "Senha",
+    "emailPlaceholder": "voce@exemplo.com",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Esqueceu a senha?",
+    "noAccount": "Não tem conta?",
+    "signUp": "Cadastre-se",
+    "signingIn": "Entrando…",
+    "registerTitle": "Criar conta",
+    "registerSubtitle": "Comece seu primeiro teste em minutos",
+    "name": "Nome completo",
+    "namePlaceholder": "Maria Silva",
+    "hasAccount": "Já tem conta?",
+    "signIn": "Entrar",
+    "creating": "Criando…",
+    "termsNotice": "Ao se cadastrar, você concorda com nossos {terms} e {privacy}.",
+    "passwordHint": "Mín. 8 caracteres, com um número",
+    "emailInvalid": "Insira um email válido",
+    "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
+    "nameRequired": "O nome é obrigatório",
+    "loginError": "Email ou senha incorretos",
+    "registerError": "Não foi possível criar a conta"
+  },
+  "dashboard": {
+    "title": "Meus testes",
+    "subtitle": "{active} teste ativo, {completed} concluídos.",
+    "subtitleEmpty": "Nenhum teste ativo ainda.",
+    "newTest": "Novo teste",
+    "loadingError": "Não foi possível carregar os testes. Tente de novo em instantes.",
+    "empty": {
+      "title": "Nenhum teste ainda",
+      "description": "Inicie seu primeiro teste fechado. Digite o nome do pacote e o link de teste, pague e deixe o sistema fazer o resto.",
+      "action": "Criar novo teste"
+    },
+    "activeSection": "Em andamento",
+    "historySection": "Histórico",
+    "optIn": "{done}/{total} opt-in",
+    "reviews": "{count} avaliações",
+    "endsAt": "Fim: {date}",
+    "startsAt": "Início: {date}"
+  },
+  "footer": {
+    "tagline": "Serviço de testes beta fechados para apps Android",
+    "product": "Produto",
+    "productFeatures": "Recursos",
+    "productHow": "Como funciona",
+    "productPricing": "Preços",
+    "legal": "Legal",
+    "legalTerms": "Termos de serviço",
+    "legalPrivacy": "Política de privacidade",
+    "legalRefund": "Política de reembolso",
+    "contact": "Contato",
+    "emailUs": "Envie email",
+    "copyright": "© {year} PlayForge"
+  }
+}

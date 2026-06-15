@@ -1,0 +1,186 @@
+{
+  "common": {
+    "appName": "PlayForge",
+    "tagline": "Android-App-Betatest, 25 echte Tester in 14 Tagen",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "logout": "Abmelden",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "settings": "Einstellungen",
+    "language": "Sprache",
+    "loading": "Lädt…",
+    "error": "Etwas ist schiefgelaufen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "cancel": "Abbrechen",
+    "submit": "Senden",
+    "save": "Speichern",
+    "tryAgain": "Erneut versuchen"
+  },
+  "marketing": {
+    "badge": "Für die 14-Tage-Anforderung von Google Play",
+    "heroTitle1": "25 Konten, 14 Tage,",
+    "heroTitle2": "automatisierter Test.",
+    "heroSubtitle": "Deine App wird von 25 verwalteten Google-Konten heruntergeladen, täglich genutzt und am Tag 14 bewertet. Du beobachtest nur die Ergebnisse.",
+    "ctaStart": "Test starten",
+    "ctaPricing": "Preise ansehen",
+    "stat1Label": "Gleichzeitige Konten",
+    "stat2Label": "Testdauer",
+    "stat3Label": "Durchschnittlicher Start",
+    "featuresTitle": "Was wir tun",
+    "featuresSubtitle": "Ende zu Ende. Du gibst den Paketnamen ein und zahlst. Wir kümmern uns um den Rest.",
+    "howTitle": "So funktioniert es",
+    "howSubtitle": "3 Schritte. Startet innerhalb von 24 Stunden nach Zahlungsbestätigung.",
+    "step": "SCHRITT",
+    "pricingTitle": "Preise",
+    "pricingSubtitle": "Eine Zahlung pro Paket. Vollständiger 14-Tage-Test.",
+    "perTest": "/ Test",
+    "recommended": "Empfohlen",
+    "choosePlan": "Diesen Plan wählen",
+    "faqTitle": "Häufig gestellte Fragen",
+    "legalTitle": "Rechtlicher Hinweis",
+    "legalBody": "Dieser Service kann bestimmte Bedingungen der Google Play Store-Nutzungsbedingungen verletzen. Unsere Kundenvereinbarung erläutert die Risikoaufteilung im Detail. Lies vor der Nutzung die.",
+    "ctaFinalTitle": "Bereit anzufangen?",
+    "ctaFinalSubtitle": "Konto in Minuten erstellen, Paketnamen eingeben, zahlen. Den Rest erledigt das System.",
+    "ctaFinal": "Konto erstellen",
+    "pricing": {
+      "basic": {
+        "name": "Basic",
+        "description": "Genug für den Einstieg.",
+        "feature1": "12 Google Play-Tester-Konten",
+        "feature2": "14 Tage Engagement",
+        "feature3": "Automatisches Opt-in + Download",
+        "feature4": "Tägliche Aktivitätsprotokolle",
+        "feature5": "10 Bewertungen (gemischte Sterne)",
+        "feature6": "E-Mail-Support"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "Die beliebte Wahl.",
+        "feature1": "20 Google Play-Tester-Konten",
+        "feature2": "Alles aus Basic",
+        "feature3": "Wöchentlicher Fortschrittsbericht",
+        "feature4": "Screenshot-Zeitleiste",
+        "feature5": "Prioritäts-Support (24h)",
+        "feature6": "WhatsApp-Benachrichtigungen"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "Für hohe Budgets und kontinuierliche Veröffentlichungen.",
+        "feature1": "25 Google Play-Tester-Konten",
+        "feature2": "Alles aus Pro",
+        "feature3": "Premium-Bannschutz (rotierende Konten)",
+        "feature4": "Dedizierter Account Manager",
+        "feature5": "API-Zugang",
+        "feature6": "SLA — 4-Stunden-Antwort"
+      }
+    },
+    "features": {
+      "managed": {
+        "title": "25 verwaltete Konten",
+        "description": "Jedes mit eigenem Geräteprofil (Modell, Android-Version, Sprache, Zeitzone). Sie laufen parallel."
+      },
+      "automation": {
+        "title": "14-Tage-Automatisierung",
+        "description": "Überschreitet die 14-Tage-Schwelle für geschlossene Tests von Google komfortabel. Tägliches Engagement, Opt-in und Download inklusive."
+      },
+      "live": {
+        "title": "Live-Fortschritt",
+        "description": "Verfolge Aktivität, Screenshots und Engagement-Minuten jedes Kontos in Echtzeit im Dashboard."
+      },
+      "reviews": {
+        "title": "Bewertungen inklusive",
+        "description": "Am Tag 14: 10 organisch wirkende Bewertungen, gemischte Sterne. Du wählst Ton und Sprache."
+      },
+      "warming": {
+        "title": "Sanftes Warming",
+        "description": "Neue Konten durchlaufen eine 3-tägige Warming-Phase mit Simulation organischen Verhaltens."
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "description": "Zahlungsbestätigung, Teststart, tägliche Zusammenfassung, Abschlussbericht — alles per E-Mail."
+      }
+    },
+    "how": {
+      "step1Title": "Paketnamen eingeben",
+      "step1Body": "Gib den Paketnamen aus der Google Play Console und den Closed-Test-Link ins Formular ein. 1 Minute.",
+      "step2Title": "Zahlung durchführen",
+      "step2Body": "Ab 99 € — Kreditkarte, Debitkarte. Stripe-Infrastruktur, 3D Secure, sofortige Bestätigung.",
+      "step3Title": "Ergebnisse beobachten",
+      "step3Body": "Innerhalb von 24 Stunden opt-in 25 Konten. Tägliches Engagement startet. Tag 14: Bericht fertig."
+    },
+    "faqs": {
+      "q1": "Ist dieser Service legal?",
+      "a1": "Die Google Play Console-Vertriebsvereinbarung beschränkt automatisierte Downloads und Bewertungs-Inflation. Dieser Service bewegt sich am Rand dieser Regeln. Unsere Kundenvereinbarung erklärt die Risikoaufteilung im Detail — lies sie vor der Nutzung.",
+      "q2": "Wie schnell beginnt der Test?",
+      "a2": "Innerhalb von 24 Stunden nach Zahlungsbestätigung beginnen Opt-in und Download. Der 14-Tage-Zyklus startet.",
+      "q3": "Gibt es eine Rückerstattung?",
+      "a3": "Volle Rückerstattung vor Testbeginn. Danach teilweise Rückerstattung für ungenutzte Tage (bis 50%). Siehe unsere Rückerstattungsrichtlinie.",
+      "q4": "Welche Länder werden unterstützt?",
+      "a4": "Aktuell Türkei, USA und Europa. Wenn dein Paket in diesen Ländern veröffentlicht wird, kann der Test durchgeführt werden.",
+      "q5": "Sind die Bewertungen echt?",
+      "a5": "Bewertungen werden von echten Konten geschrieben, können aber gemäß Google ToS als 'nicht organisch' gelten. Dieses Risiko liegt beim Kunden.",
+      "q6": "Können Konten gebannt werden?",
+      "a6": "Wir wenden sanftes Warming und Verhaltenssimulation an, aber Änderungen am Google-Algorithmus bergen Risiken. Der Enterprise-Plan verwendet rotierende Konten."
+    }
+  },
+  "auth": {
+    "loginTitle": "Willkommen zurück",
+    "loginSubtitle": "Melde dich bei deinem Konto an",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "emailPlaceholder": "du@beispiel.de",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Passwort vergessen?",
+    "noAccount": "Kein Konto?",
+    "signUp": "Registrieren",
+    "signingIn": "Anmeldung läuft…",
+    "registerTitle": "Konto erstellen",
+    "registerSubtitle": "Starte deinen ersten Test in Minuten",
+    "name": "Vollständiger Name",
+    "namePlaceholder": "Max Mustermann",
+    "hasAccount": "Bereits ein Konto?",
+    "signIn": "Anmelden",
+    "creating": "Wird erstellt…",
+    "termsNotice": "Mit der Registrierung akzeptierst du unsere {terms} und {privacy}.",
+    "passwordHint": "Min. 8 Zeichen, mit einer Zahl",
+    "emailInvalid": "Bitte gültige E-Mail eingeben",
+    "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
+    "nameRequired": "Name ist erforderlich",
+    "loginError": "E-Mail oder Passwort falsch",
+    "registerError": "Konto konnte nicht erstellt werden"
+  },
+  "dashboard": {
+    "title": "Meine Tests",
+    "subtitle": "{active} aktiver Test, {completed} abgeschlossen.",
+    "subtitleEmpty": "Noch keine aktiven Tests.",
+    "newTest": "Neuer Test",
+    "loadingError": "Tests konnten nicht geladen werden. Versuche es in einem Moment erneut.",
+    "empty": {
+      "title": "Noch keine Tests",
+      "description": "Starte deinen ersten geschlossenen Test. Gib Paketnamen und Testlink ein, zahle, den Rest erledigt das System.",
+      "action": "Neuen Test erstellen"
+    },
+    "activeSection": "In Bearbeitung",
+    "historySection": "Verlauf",
+    "optIn": "{done}/{total} Opt-in",
+    "reviews": "{count} Bewertungen",
+    "endsAt": "Ende: {date}",
+    "startsAt": "Start: {date}"
+  },
+  "footer": {
+    "tagline": "Closed-Beta-Tests für Android-Apps",
+    "product": "Produkt",
+    "productFeatures": "Funktionen",
+    "productHow": "So funktioniert es",
+    "productPricing": "Preise",
+    "legal": "Rechtliches",
+    "legalTerms": "Nutzungsbedingungen",
+    "legalPrivacy": "Datenschutz",
+    "legalRefund": "Rückerstattung",
+    "contact": "Kontakt",
+    "emailUs": "E-Mail schreiben",
+    "copyright": "© {year} PlayForge"
+  }
+}

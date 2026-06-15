@@ -74,8 +74,8 @@ func main() {
 
 	// Services
 	authSvc := service.NewAuthService(userRepo, sessionRepo, jwtMgr)
-	iyzico := service.NewIyzicoClient(logger)
-	orderSvc := service.NewOrderService(orderRepo, planRepo, testRepo, paymentRepo, iyzico, asynqClient, logger)
+	stripe := service.NewStripeClient(logger)
+	orderSvc := service.NewOrderService(orderRepo, planRepo, testRepo, paymentRepo, stripe, asynqClient, logger)
 
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -106,7 +106,7 @@ func main() {
 	authH.Register(r)
 
 	// Plans, Orders
-	orderH := handler.NewOrderHandler(orderSvc, asynqClient, logger)
+	orderH := handler.NewOrderHandler(orderSvc, stripe, asynqClient, logger)
 	orderH.Register(r)
 
 	// Tests

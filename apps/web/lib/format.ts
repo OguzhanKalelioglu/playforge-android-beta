@@ -6,10 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // ============================================
-// Money — TR ₺ always, 2 decimals
+// Money — locale-aware, 2 decimals
 // ============================================
-export function formatCurrency(amount: number, currency = 'TRY'): string {
-  return new Intl.NumberFormat('tr-TR', {
+export function formatCurrency(amount: number, currency = 'TRY', intlLocale = 'tr-TR'): string {
+  return new Intl.NumberFormat(intlLocale, {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
@@ -17,11 +17,12 @@ export function formatCurrency(amount: number, currency = 'TRY'): string {
   }).format(amount)
 }
 
-export function formatMoneyShort(amount: number, currency = 'TRY'): string {
+export function formatMoneyShort(amount: number, currency = 'TRY', intlLocale = 'tr-TR'): string {
+  const sym = currency === 'TRY' ? '₺' : currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency === 'BRL' ? 'R$' : ''
   if (amount >= 1000) {
-    return `${(amount / 1000).toFixed(1).replace('.0', '')}K ₺`
+    return `${(amount / 1000).toFixed(1).replace('.0', '')}K${sym ? ' ' + sym : ''}`
   }
-  return `${amount.toFixed(0)} ₺`
+  return `${amount.toFixed(0)}${sym ? ' ' + sym : ''}`
 }
 
 // ============================================

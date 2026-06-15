@@ -105,8 +105,8 @@ type Order struct {
 	Total                 float64
 	Currency              string
 	TestID                *uuid.UUID
-	IyzicoCheckoutToken   *string
-	IyzicoTokenExpiresAt  *time.Time
+	StripeCheckoutSessionID *string
+	StripeSessionExpiresAt  *time.Time
 	BillingEmail          *string
 	BillingName           *string
 	BillingPhone          *string
@@ -140,7 +140,7 @@ func (r *OrderRepository) Create(ctx context.Context, o *Order) error {
 func (r *OrderRepository) GetByID(ctx context.Context, id uuid.UUID) (*Order, error) {
 	const q = `
 		SELECT id, user_id, plan_tier_id, status, subtotal, tax_total, total, currency,
-		       test_id, iyzico_checkout_form_token, iyzico_token_expires_at,
+		       test_id, stripe_checkout_session_id, stripe_session_expires_at,
 		       billing_email, billing_name, billing_phone, billing_address,
 		       metadata, expires_at, paid_at, cancelled_at, created_at, updated_at
 		FROM orders WHERE id = $1
@@ -148,7 +148,7 @@ func (r *OrderRepository) GetByID(ctx context.Context, id uuid.UUID) (*Order, er
 	o := &Order{}
 	err := r.db.QueryRow(ctx, q, id).Scan(
 		&o.ID, &o.UserID, &o.PlanTierID, &o.Status, &o.Subtotal, &o.TaxTotal, &o.Total, &o.Currency,
-		&o.TestID, &o.IyzicoCheckoutToken, &o.IyzicoTokenExpiresAt,
+		&o.TestID, &o.StripeCheckoutSessionID, &o.StripeSessionExpiresAt,
 		&o.BillingEmail, &o.BillingName, &o.BillingPhone, &o.BillingAddress,
 		&o.Metadata, &o.ExpiresAt, &o.PaidAt, &o.CancelledAt, &o.CreatedAt, &o.UpdatedAt,
 	)
@@ -164,7 +164,7 @@ func (r *OrderRepository) GetByID(ctx context.Context, id uuid.UUID) (*Order, er
 func (r *OrderRepository) ListByUser(ctx context.Context, userID uuid.UUID) ([]*Order, error) {
 	const q = `
 		SELECT id, user_id, plan_tier_id, status, subtotal, tax_total, total, currency,
-		       test_id, iyzico_checkout_form_token, iyzico_token_expires_at,
+		       test_id, stripe_checkout_session_id, stripe_session_expires_at,
 		       billing_email, billing_name, billing_phone, billing_address,
 		       metadata, expires_at, paid_at, cancelled_at, created_at, updated_at
 		FROM orders WHERE user_id = $1 ORDER BY created_at DESC
@@ -180,7 +180,7 @@ func (r *OrderRepository) ListByUser(ctx context.Context, userID uuid.UUID) ([]*
 		o := &Order{}
 		err := rows.Scan(
 			&o.ID, &o.UserID, &o.PlanTierID, &o.Status, &o.Subtotal, &o.TaxTotal, &o.Total, &o.Currency,
-			&o.TestID, &o.IyzicoCheckoutToken, &o.IyzicoTokenExpiresAt,
+			&o.TestID, &o.StripeCheckoutSessionID, &o.StripeSessionExpiresAt,
 			&o.BillingEmail, &o.BillingName, &o.BillingPhone, &o.BillingAddress,
 			&o.Metadata, &o.ExpiresAt, &o.PaidAt, &o.CancelledAt, &o.CreatedAt, &o.UpdatedAt,
 		)
@@ -195,7 +195,7 @@ func (r *OrderRepository) ListByUser(ctx context.Context, userID uuid.UUID) ([]*
 func (r *OrderRepository) ListAll(ctx context.Context, status string, limit int) ([]*Order, error) {
 	q := `
 		SELECT o.id, o.user_id, o.plan_tier_id, o.status, o.subtotal, o.tax_total, o.total, o.currency,
-		       o.test_id, o.iyzico_checkout_form_token, o.iyzico_token_expires_at,
+		       o.test_id, o.stripe_checkout_session_id, o.stripe_session_expires_at,
 		       o.billing_email, o.billing_name, o.billing_phone, o.billing_address,
 		       o.metadata, o.expires_at, o.paid_at, o.cancelled_at, o.created_at, o.updated_at,
 		       u.email as user_email, pt.name as plan_name
@@ -229,7 +229,7 @@ func (r *OrderRepository) ListAll(ctx context.Context, status string, limit int)
 		var x row
 		err := rows.Scan(
 			&x.ID, &x.UserID, &x.PlanTierID, &x.Status, &x.Subtotal, &x.TaxTotal, &x.Total, &x.Currency,
-			&x.TestID, &x.IyzicoCheckoutToken, &x.IyzicoTokenExpiresAt,
+			&x.TestID, &x.StripeCheckoutSessionID, &x.StripeSessionExpiresAt,
 			&x.BillingEmail, &x.BillingName, &x.BillingPhone, &x.BillingAddress,
 			&x.Metadata, &x.ExpiresAt, &x.PaidAt, &x.CancelledAt, &x.CreatedAt, &x.UpdatedAt,
 			&x.UserEmail, &x.PlanName,
@@ -251,13 +251,13 @@ func (r *OrderRepository) MarkPaid(ctx context.Context, id uuid.UUID, testID uui
 	return err
 }
 
-func (r *OrderRepository) SetCheckoutToken(ctx context.Context, id uuid.UUID, token string, expires time.Time) error {
+func (r *OrderRepository) SetStripeSession(ctx context.Context, id uuid.UUID, sessionID string, expires time.Time) error {
 	const q = `
 		UPDATE orders SET status = 'awaiting_payment',
-		       iyzico_checkout_form_token = $2, iyzico_token_expires_at = $3,
+		       stripe_checkout_session_id = $2, stripe_session_expires_at = $3,
 		       updated_at = NOW()
 		WHERE id = $1
 	`
-	_, err := r.db.Exec(ctx, q, id, token, expires)
+	_, err := r.db.Exec(ctx, q, id, sessionID, expires)
 	return err
 }

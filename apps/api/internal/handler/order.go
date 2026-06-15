@@ -3,12 +3,13 @@ package handler
 import (
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/hibiken/asynq"
+	"github.com/stripe/stripe-go/v82"
 	"go.uber.org/zap"
 
 	"github.com/testerscommunity/api/internal/middleware"
@@ -17,26 +18,27 @@ import (
 )
 
 type OrderHandler struct {
-	orders     *service.OrderService
-	logger     *zap.Logger
-	asynq      *asynq.Client
+	orders *service.OrderService
+	stripe *service.StripeClient
+	logger *zap.Logger
+	asynq  *asynq.Client
 }
 
-func NewOrderHandler(orders *service.OrderService, asynq *asynq.Client, logger *zap.Logger) *OrderHandler {
-	return &OrderHandler{orders: orders, asynq: asynq, logger: logger}
+func NewOrderHandler(orders *service.OrderService, stripe *service.StripeClient, asynq *asynq.Client, logger *zap.Logger) *OrderHandler {
+	return &OrderHandler{orders: orders, stripe: stripe, asynq: asynq, logger: logger}
 }
 
 func (h *OrderHandler) Register(r *gin.Engine) {
 	api := r.Group("/api/v1")
 	api.GET("/plans", h.ListPlans)
 
+	// Stripe webhook — public, signature-based (no JWT, no CSRF)
+	r.POST("/api/v1/payments/stripe/webhook", h.StripeWebhook)
+
 	auth := api.Group("", middleware.AuthRequiredJWT())
 	auth.POST("/orders", h.Create)
 	auth.GET("/orders", h.List)
 	auth.GET("/orders/:id", h.Detail)
-
-	// Iyzico callback — public, token-based
-	r.POST("/api/v1/payments/iyzico/callback", h.IyzicoCallback)
 }
 
 func (h *OrderHandler) ListPlans(c *gin.Context) {
@@ -164,47 +166,71 @@ func orderToDTO(o any) gin.H {
 	return m
 }
 
-// Iyzico callback — kullanıcı 3D Secure sonrası dönüşünde
-func (h *OrderHandler) IyzicoCallback(c *gin.Context) {
-	orderIDStr := c.Query("order")
-	if orderIDStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "order required"})
-		return
-	}
-	orderID, err := uuid.Parse(orderIDStr)
+// StripeWebhook — Stripe'tan gelen event'leri işler
+//  - checkout.session.completed: order paid işaretlenir, test tetiklenir
+//  - charge.refunded: payment refunded
+//  - Her event 200 dönmek zorundadır; aksi halde Stripe tekrar dener
+func (h *OrderHandler) StripeWebhook(c *gin.Context) {
+	payload, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid order id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "read body"})
+		return
+	}
+	signature := c.GetHeader("Stripe-Signature")
+	if signature == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "missing signature"})
 		return
 	}
 
-	// Iyzico token'ı ile retrieve çağrısı
-	// (Gerçek flow: token checkout form'dan döner, biz de retrieve ile sonucu alırız)
-	// Burada basitleştirilmiş: token query param'dan
-	token := c.Query("token")
-	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
+	event, err := h.stripe.VerifyWebhook(payload, signature)
+	if err != nil {
+		h.logger.Warn("webhook signature verify failed", zap.Error(err))
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid signature"})
 		return
 	}
 
-	// Burada normalde iyzico client ile RetrieveCheckoutForm çağrılır
-	// ve başarılıysa order paid olarak işaretlenir
-	_ = token
-
-	// Demo/dev: token "dev-" prefixli ise direkt success say
-	iyzicoID := ""
-	if len(token) > 4 && token[:4] == "dev-" {
-		iyzicoID = "dev-pay-" + strconv.FormatInt(int64(orderID[0]), 16)
-		if err := h.orders.MarkPaid(c.Request.Context(), orderID, iyzicoID); err != nil {
-			h.logger.Error("mark paid failed", zap.Error(err))
+	switch event.Type {
+	case "checkout.session.completed":
+		var sess stripe.CheckoutSession
+		if err := json.Unmarshal(event.Data.Raw, &sess); err != nil {
+			h.logger.Error("decode session", zap.Error(err))
+			c.JSON(http.StatusBadRequest, gin.H{"error": "decode"})
+			return
+		}
+		orderIDStr := sess.Metadata["order_id"]
+		orderID, err := uuid.Parse(orderIDStr)
+		if err != nil {
+			h.logger.Warn("webhook order_id parse failed", zap.String("raw", orderIDStr))
+			c.JSON(http.StatusOK, gin.H{"ok": true})
+			return
+		}
+		paymentIntent := ""
+		if sess.PaymentIntent != nil {
+			paymentIntent = sess.PaymentIntent.ID
+		}
+		if _, err := h.orders.MarkPaid(c.Request.Context(), orderID, sess.ID, paymentIntent); err != nil {
+			h.logger.Error("mark paid via webhook failed",
+				zap.Error(err),
+				zap.String("order_id", orderIDStr),
+				zap.String("stripe_session", sess.ID))
+			// 500 dön → Stripe tekrar gönderir (idempotent olmalı)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "mark paid failed"})
 			return
 		}
-		// Web success sayfasına yönlendir
-		c.Redirect(http.StatusFound, "/dashboard/orders/"+orderIDStr+"/success")
-		return
+		h.logger.Info("order paid via webhook",
+			zap.String("order_id", orderIDStr),
+			zap.String("stripe_session", sess.ID),
+			zap.String("payment_intent", paymentIntent))
+
+	case "charge.refunded":
+		// İade akışı — şimdilik log
+		h.logger.Info("stripe charge.refunded received", zap.String("event_id", event.ID))
+
+	default:
+		h.logger.Debug("unhandled stripe event", zap.String("type", string(event.Type)))
 	}
 
-	c.JSON(http.StatusOK, gin.H{"ok": true})
+	c.JSON(http.StatusOK, gin.H{"received": true})
 }
 
 // Asynq job enqueue helper (kullanılmıyor, scheduler tarafından tetiklenir)

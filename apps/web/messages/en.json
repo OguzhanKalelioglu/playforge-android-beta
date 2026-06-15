@@ -1,0 +1,186 @@
+{
+  "common": {
+    "appName": "PlayForge",
+    "tagline": "Android app beta testing, 25 real testers in 14 days",
+    "login": "Log in",
+    "register": "Sign up",
+    "logout": "Log out",
+    "dashboard": "Dashboard",
+    "admin": "Admin",
+    "settings": "Settings",
+    "language": "Language",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "back": "Back",
+    "next": "Next",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "save": "Save",
+    "tryAgain": "Try again"
+  },
+  "marketing": {
+    "badge": "For the Google Play 14-day requirement",
+    "heroTitle1": "25 accounts, 14 days,",
+    "heroTitle2": "automated testing.",
+    "heroSubtitle": "Your app gets downloaded by 25 managed Google accounts, used daily, and reviewed on day 14. You just watch the results.",
+    "ctaStart": "Start a test",
+    "ctaPricing": "See pricing",
+    "stat1Label": "Concurrent accounts",
+    "stat2Label": "Test duration",
+    "stat3Label": "Average start",
+    "featuresTitle": "What we do",
+    "featuresSubtitle": "End to end. You enter the package name and pay. We handle the rest.",
+    "howTitle": "How it works",
+    "howSubtitle": "3 steps. Starts within 24 hours of payment confirmation.",
+    "step": "STEP",
+    "pricingTitle": "Pricing",
+    "pricingSubtitle": "One payment per package. Full 14-day test.",
+    "perTest": "/ test",
+    "recommended": "Recommended",
+    "choosePlan": "Choose this plan",
+    "faqTitle": "Frequently asked questions",
+    "legalTitle": "Legal notice",
+    "legalBody": "This service may violate certain terms of the Google Play Store Terms of Service. Our customer agreement details all risk sharing. Before using the service, read the.",
+    "ctaFinalTitle": "Ready to start?",
+    "ctaFinalSubtitle": "Create an account in minutes, enter your package name, pay the fee. The system handles the rest.",
+    "ctaFinal": "Create an account",
+    "pricing": {
+      "basic": {
+        "name": "Basic",
+        "description": "Enough to get started.",
+        "feature1": "12 Google Play tester accounts",
+        "feature2": "14 days of engagement",
+        "feature3": "Automatic opt-in + download",
+        "feature4": "Daily activity logs",
+        "feature5": "10 reviews (mixed rating)",
+        "feature6": "Email support"
+      },
+      "pro": {
+        "name": "Pro",
+        "description": "The popular pick.",
+        "feature1": "20 Google Play tester accounts",
+        "feature2": "Everything in Basic",
+        "feature3": "Weekly progress report",
+        "feature4": "Screenshot timeline",
+        "feature5": "Priority support (24h)",
+        "feature6": "WhatsApp notifications"
+      },
+      "enterprise": {
+        "name": "Enterprise",
+        "description": "For high-budget and continuous releases.",
+        "feature1": "25 Google Play tester accounts",
+        "feature2": "Everything in Pro",
+        "feature3": "Premium ban protection (rotating accounts)",
+        "feature4": "Dedicated account manager",
+        "feature5": "API access",
+        "feature6": "SLA — 4 hour response"
+      }
+    },
+    "features": {
+      "managed": {
+        "title": "25 managed accounts",
+        "description": "Each one with its own device profile (model, Android version, language, timezone). They run in parallel."
+      },
+      "automation": {
+        "title": "14-day automation",
+        "description": "Comfortably clears Google's 14-day closed test threshold. Daily engagement, opt-in, and download included."
+      },
+      "live": {
+        "title": "Live progress",
+        "description": "Track each account's activity, screenshots, and engagement minutes in real time from the dashboard."
+      },
+      "reviews": {
+        "title": "Reviews included",
+        "description": "On day 14: 10 organic-looking reviews, mixed rating. You pick the tone and language."
+      },
+      "warming": {
+        "title": "Soft warming",
+        "description": "New accounts go through a 3-day warming period; organic behavior simulation is applied."
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Payment confirmation, test start, daily summary, completion report — all by email."
+      }
+    },
+    "how": {
+      "step1Title": "Enter your package name",
+      "step1Body": "Type your Google Play Console package name and closed test link into the form. 1 minute.",
+      "step2Title": "Make the payment",
+      "step2Body": "Starting at $99 — credit card, debit card. Stripe infrastructure, 3D Secure, instant confirmation.",
+      "step3Title": "Watch the results",
+      "step3Body": "Within 24 hours, 25 accounts opt in. Daily engagement starts. Day 14: report is ready."
+    },
+    "faqs": {
+      "q1": "Is this service legal?",
+      "a1": "The Google Play Console Distribution Agreement restricts automated downloads and review inflation. This service operates on the edge of those rules. Our customer agreement explains the risk sharing in detail — read it before using.",
+      "q2": "How quickly does the test start?",
+      "a2": "Within 24 hours of payment confirmation, opt-in and download begin. The 14-day cycle starts.",
+      "q3": "Is there a refund?",
+      "a3": "Full refund before the test starts. After it starts, partial refund for unused days (up to 50%). See our refund policy.",
+      "q4": "Which countries are supported?",
+      "a4": "Currently Turkey, USA, and Europe. If your package is published in these countries, the test can run.",
+      "q5": "Are the reviews real?",
+      "a5": "Reviews are written by real accounts, but may be considered \"non-organic\" under Google ToS. This risk is the customer's.",
+      "q6": "Can accounts get banned?",
+      "a6": "We apply soft warming and organic behavior simulation, but Google's algorithm changes carry risk. The Enterprise package uses rotating accounts."
+    }
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Sign in to your account",
+    "email": "Email",
+    "password": "Password",
+    "emailPlaceholder": "you@example.com",
+    "passwordPlaceholder": "••••••••",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "signingIn": "Signing in…",
+    "registerTitle": "Create an account",
+    "registerSubtitle": "Start your first test in minutes",
+    "name": "Full name",
+    "namePlaceholder": "Jane Doe",
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "creating": "Creating…",
+    "termsNotice": "By signing up, you agree to our {terms} and {privacy}.",
+    "passwordHint": "Min 8 characters, with a number",
+    "emailInvalid": "Please enter a valid email",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "nameRequired": "Name is required",
+    "loginError": "Invalid email or password",
+    "registerError": "Could not create your account"
+  },
+  "dashboard": {
+    "title": "My tests",
+    "subtitle": "{active} active test, {completed} completed.",
+    "subtitleEmpty": "No active tests yet.",
+    "newTest": "New test",
+    "loadingError": "Tests could not be loaded. Try again in a moment.",
+    "empty": {
+      "title": "No tests yet",
+      "description": "Start your first closed test. Enter your package name and test link, pay the fee, and let the system handle the rest.",
+      "action": "Create a new test"
+    },
+    "activeSection": "In progress",
+    "historySection": "History",
+    "optIn": "{done}/{total} opt-in",
+    "reviews": "{count} reviews",
+    "endsAt": "Ends: {date}",
+    "startsAt": "Started: {date}"
+  },
+  "footer": {
+    "tagline": "Closed beta testing for Android apps",
+    "product": "Product",
+    "productFeatures": "Features",
+    "productHow": "How it works",
+    "productPricing": "Pricing",
+    "legal": "Legal",
+    "legalTerms": "Terms of service",
+    "legalPrivacy": "Privacy policy",
+    "legalRefund": "Refund policy",
+    "contact": "Contact",
+    "emailUs": "Email us",
+    "copyright": "© {year} PlayForge"
+  }
+}

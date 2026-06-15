@@ -1,50 +1,254 @@
 name: testers-minipc
 
-# ============================================
-# Mini PC Emulator Farm
-# Bu dosya, ev/ofis konumundaki 64GB RAM Mini PC'de çalışır.
-# 1 emulator (Phase 1 - Hafta 3)
-# Sonraki haftalarda emulator-02, emulator-03... eklenir.
-# ============================================
+x-emulator-base: &emulator-base
+  image: budtmo/docker-android:emulator_11.0
+  privileged: true
+  devices:
+    - /dev/kvm:/dev/kvm
+  environment:
+    - ANDROID_EMULATOR_DEVICE=Pixel_5
+    - WEB_VNC=false
+    - EMULATOR_PARAMS=-no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel auto -cores 2 -memory 1536
+    - TZ=Europe/Istanbul
+  shm_size: '2gb'
+  mem_limit: 3gb
+  volumes:
+    - /tmp/.X11-unix:/tmp/.X11-unix
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD-SHELL", "adb -s emulator-5554 shell getprop sys.boot_completed | grep -q 1 || exit 1"]
+    interval: 30s
+    timeout: 10s
+    retries: 12
+    start_period: 180s
+  logging:
+    driver: json-file
+    options:
+      max-size: "20m"
+      max-file: "3"
 
 services:
   emulator-01:
-    image: budtmo/docker-android:emulator_11.0
+    <<: *emulator-base
     container_name: tc-emulator-01
-    privileged: true
-    devices:
-      - /dev/kvm:/dev/kvm
     ports:
       - "5554:5554"
       - "5555:5555"
-    environment:
-      - ANDROID_EMULATOR_DEVICE=Pixel_5
-      - WEB_VNC=false
-      - EMULATOR_PARAMS=-no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel auto -cores 2 -memory 1536
-      - TZ=Europe/Istanbul
-    shm_size: '2gb'
-    mem_limit: 3gb
     volumes:
       - ./emulator-data/01:/root/.android
-      - /tmp/.X11-unix:/tmp/.X11-unix
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "adb -s emulator-5554 shell getprop sys.boot_completed | grep -q 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 12
-      start_period: 180s
-    logging:
-      driver: json-file
-      options:
-        max-size: "20m"
-        max-file: "3"
 
-  # İleride ekleyeceğin emulatorler (Phase 2-3):
-  # emulator-02:
-  #   image: budtmo/docker-android:emulator_11.0
-  #   container_name: tc-emulator-02
-  #   ...
-  #   ports: ["5556:5554", "5557:5555"]
-  #   shm_size: '2gb'
-  #   mem_limit: 3gb
+  emulator-02:
+    <<: *emulator-base
+    container_name: tc-emulator-02
+    ports:
+      - "5556:5554"
+      - "5557:5555"
+    volumes:
+      - ./emulator-data/02:/root/.android
+
+  emulator-03:
+    <<: *emulator-base
+    container_name: tc-emulator-03
+    ports:
+      - "5558:5554"
+      - "5559:5555"
+    volumes:
+      - ./emulator-data/03:/root/.android
+
+  emulator-04:
+    <<: *emulator-base
+    container_name: tc-emulator-04
+    ports:
+      - "5560:5554"
+      - "5561:5555"
+    volumes:
+      - ./emulator-data/04:/root/.android
+
+  emulator-05:
+    <<: *emulator-base
+    container_name: tc-emulator-05
+    ports:
+      - "5562:5554"
+      - "5563:5555"
+    volumes:
+      - ./emulator-data/05:/root/.android
+
+  emulator-06:
+    <<: *emulator-base
+    container_name: tc-emulator-06
+    ports:
+      - "5564:5554"
+      - "5565:5555"
+    volumes:
+      - ./emulator-data/06:/root/.android
+
+  emulator-07:
+    <<: *emulator-base
+    container_name: tc-emulator-07
+    ports:
+      - "5566:5554"
+      - "5567:5555"
+    volumes:
+      - ./emulator-data/07:/root/.android
+
+  emulator-08:
+    <<: *emulator-base
+    container_name: tc-emulator-08
+    ports:
+      - "5568:5554"
+      - "5569:5555"
+    volumes:
+      - ./emulator-data/08:/root/.android
+
+  emulator-09:
+    <<: *emulator-base
+    container_name: tc-emulator-09
+    ports:
+      - "5570:5554"
+      - "5571:5555"
+    volumes:
+      - ./emulator-data/09:/root/.android
+
+  emulator-10:
+    <<: *emulator-base
+    container_name: tc-emulator-10
+    ports:
+      - "5572:5554"
+      - "5573:5555"
+    volumes:
+      - ./emulator-data/10:/root/.android
+
+  emulator-11:
+    <<: *emulator-base
+    container_name: tc-emulator-11
+    ports:
+      - "5574:5554"
+      - "5575:5555"
+    volumes:
+      - ./emulator-data/11:/root/.android
+
+  emulator-12:
+    <<: *emulator-base
+    container_name: tc-emulator-12
+    ports:
+      - "5576:5554"
+      - "5577:5555"
+    volumes:
+      - ./emulator-data/12:/root/.android
+
+  emulator-13:
+    <<: *emulator-base
+    container_name: tc-emulator-13
+    ports:
+      - "5578:5554"
+      - "5579:5555"
+    volumes:
+      - ./emulator-data/13:/root/.android
+
+  emulator-14:
+    <<: *emulator-base
+    container_name: tc-emulator-14
+    ports:
+      - "5580:5554"
+      - "5581:5555"
+    volumes:
+      - ./emulator-data/14:/root/.android
+
+  emulator-15:
+    <<: *emulator-base
+    container_name: tc-emulator-15
+    ports:
+      - "5582:5554"
+      - "5583:5555"
+    volumes:
+      - ./emulator-data/15:/root/.android
+
+  emulator-16:
+    <<: *emulator-base
+    container_name: tc-emulator-16
+    ports:
+      - "5584:5554"
+      - "5585:5555"
+    volumes:
+      - ./emulator-data/16:/root/.android
+
+  emulator-17:
+    <<: *emulator-base
+    container_name: tc-emulator-17
+    ports:
+      - "5586:5554"
+      - "5587:5555"
+    volumes:
+      - ./emulator-data/17:/root/.android
+
+  emulator-18:
+    <<: *emulator-base
+    container_name: tc-emulator-18
+    ports:
+      - "5588:5554"
+      - "5589:5555"
+    volumes:
+      - ./emulator-data/18:/root/.android
+
+  emulator-19:
+    <<: *emulator-base
+    container_name: tc-emulator-19
+    ports:
+      - "5590:5554"
+      - "5591:5555"
+    volumes:
+      - ./emulator-data/19:/root/.android
+
+  emulator-20:
+    <<: *emulator-base
+    container_name: tc-emulator-20
+    ports:
+      - "5592:5554"
+      - "5593:5555"
+    volumes:
+      - ./emulator-data/20:/root/.android
+
+  emulator-21:
+    <<: *emulator-base
+    container_name: tc-emulator-21
+    ports:
+      - "5594:5554"
+      - "5595:5555"
+    volumes:
+      - ./emulator-data/21:/root/.android
+
+  emulator-22:
+    <<: *emulator-base
+    container_name: tc-emulator-22
+    ports:
+      - "5596:5554"
+      - "5597:5555"
+    volumes:
+      - ./emulator-data/22:/root/.android
+
+  emulator-23:
+    <<: *emulator-base
+    container_name: tc-emulator-23
+    ports:
+      - "5598:5554"
+      - "5599:5555"
+    volumes:
+      - ./emulator-data/23:/root/.android
+
+  emulator-24:
+    <<: *emulator-base
+    container_name: tc-emulator-24
+    ports:
+      - "5600:5554"
+      - "5601:5555"
+    volumes:
+      - ./emulator-data/24:/root/.android
+
+  emulator-25:
+    <<: *emulator-base
+    container_name: tc-emulator-25
+    ports:
+      - "5602:5554"
+      - "5603:5555"
+    volumes:
+      - ./emulator-data/25:/root/.android

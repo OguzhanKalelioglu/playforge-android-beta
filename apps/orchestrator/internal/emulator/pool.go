@@ -9,18 +9,26 @@ import (
 type Status string
 
 const (
-	StatusIdle     Status = "idle"
-	StatusBusy     Status = "busy"
-	StatusBooting  Status = "booting"
-	StatusOffline  Status = "offline"
+	StatusUnknown Status = "unknown"
+	StatusStopped Status = "stopped"
+	StatusBooting Status = "booting"
+	StatusReady   Status = "ready"
+	StatusBusy    Status = "busy"
+	StatusWiping  Status = "wiping"
+	StatusError   Status = "error"
 )
 
 type Emulator struct {
-	Index   int
-	Serial  string
-	Status  Status
-	TesterID string
-	LastUsed time.Time
+	Index       int       `json:"index"`
+	Serial      string    `json:"serial"`
+	ContainerID string    `json:"container_id,omitempty"`
+	Status      Status    `json:"status"`
+	TesterID    string    `json:"tester_id,omitempty"`
+	LastUsed    time.Time `json:"last_used,omitempty"`
+	BootedAt    time.Time `json:"booted_at,omitempty"`
+	LastCheck   time.Time `json:"last_check,omitempty"`
+	ErrorMsg    string    `json:"error_msg,omitempty"`
+	BootCount   int       `json:"boot_count"`
 }
 
 type Pool struct {
@@ -35,14 +43,18 @@ func NewPool(count int) *Pool {
 		count:     count,
 	}
 	for i := 0; i < count; i++ {
-		serial := fmt.Sprintf("emulator-%d", 5554+2*i)
+		serial := SerialFor(i)
 		p.emulators[serial] = &Emulator{
 			Index:  i,
 			Serial: serial,
-			Status: StatusIdle,
+			Status: StatusStopped,
 		}
 	}
 	return p
+}
+
+func SerialFor(index int) string {
+	return fmt.Sprintf("emulator-%d", 5554+2*index)
 }
 
 func (p *Pool) Acquire() (*Emulator, error) {
@@ -50,13 +62,13 @@ func (p *Pool) Acquire() (*Emulator, error) {
 	defer p.mu.Unlock()
 
 	for _, e := range p.emulators {
-		if e.Status == StatusIdle {
+		if e.Status == StatusReady {
 			e.Status = StatusBusy
 			e.LastUsed = time.Now()
 			return e, nil
 		}
 	}
-	return nil, fmt.Errorf("no available emulator (all %d busy)", p.count)
+	return nil, fmt.Errorf("no available emulator (all %d busy or not ready)", p.count)
 }
 
 func (p *Pool) Release(serial string) error {
@@ -67,7 +79,7 @@ func (p *Pool) Release(serial string) error {
 	if !ok {
 		return fmt.Errorf("emulator %s not found", serial)
 	}
-	e.Status = StatusIdle
+	e.Status = StatusReady
 	e.TesterID = ""
 	return nil
 }
@@ -84,6 +96,53 @@ func (p *Pool) Assign(serial, testerID string) error {
 	e.Status = StatusBusy
 	e.LastUsed = time.Now()
 	return nil
+}
+
+func (p *Pool) SetStatus(serial string, status Status, errMsg string) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	e, ok := p.emulators[serial]
+	if !ok {
+		return fmt.Errorf("emulator %s not found", serial)
+	}
+	prev := e.Status
+	e.Status = status
+	e.LastCheck = time.Now()
+	e.ErrorMsg = errMsg
+
+	if status == StatusReady && prev != StatusReady {
+		e.BootedAt = time.Now()
+		e.BootCount++
+	}
+	if status == StatusError && errMsg != "" {
+		e.ErrorMsg = errMsg
+	}
+	return nil
+}
+
+func (p *Pool) SetContainerID(serial, containerID string) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	e, ok := p.emulators[serial]
+	if !ok {
+		return fmt.Errorf("emulator %s not found", serial)
+	}
+	e.ContainerID = containerID
+	return nil
+}
+
+func (p *Pool) Get(serial string) (*Emulator, error) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	e, ok := p.emulators[serial]
+	if !ok {
+		return nil, fmt.Errorf("emulator %s not found", serial)
+	}
+	out := *e
+	return &out, nil
 }
 
 func (p *Pool) Status() map[string]Status {
@@ -103,7 +162,37 @@ func (p *Pool) List() []*Emulator {
 
 	out := make([]*Emulator, 0, len(p.emulators))
 	for _, e := range p.emulators {
-		out = append(out, e)
+		cp := *e
+		out = append(out, &cp)
+	}
+	return out
+}
+
+func (p *Pool) Count() int {
+	return p.count
+}
+
+func (p *Pool) Counts() map[Status]int {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	counts := map[Status]int{}
+	for _, e := range p.emulators {
+		counts[e.Status]++
+	}
+	return counts
+}
+
+func (p *Pool) Ready() []*Emulator {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	out := make([]*Emulator, 0)
+	for _, e := range p.emulators {
+		if e.Status == StatusReady {
+			cp := *e
+			out = append(out, &cp)
+		}
 	}
 	return out
 }

@@ -16,8 +16,11 @@ import (
 	"github.com/testerscommunity/orchestrator/internal/adb"
 	"github.com/testerscommunity/orchestrator/internal/api"
 	"github.com/testerscommunity/orchestrator/internal/config"
+	"github.com/testerscommunity/orchestrator/internal/container"
 	"github.com/testerscommunity/orchestrator/internal/emulator"
+	"github.com/testerscommunity/orchestrator/internal/health"
 	"github.com/testerscommunity/orchestrator/internal/lib"
+	"github.com/testerscommunity/orchestrator/internal/lifecycle"
 )
 
 func main() {
@@ -34,13 +37,39 @@ func main() {
 	}
 	defer logger.Sync()
 
+	logger.Info("orchestrator booting",
+		zap.String("env", cfg.AppEnv),
+		zap.Int("emulators", cfg.EmulatorCount),
+		zap.Bool("auto_start", cfg.AutoStartEmul),
+		zap.String("compose_project", cfg.ComposeProject))
+
 	adbClient := adb.NewClient(cfg.AdbHost, cfg.AdbPort)
 	if err := adbClient.StartADBServer(); err != nil {
 		logger.Warn("adb start-server failed (continuing)", zap.Error(err))
 	}
 
 	pool := emulator.NewPool(cfg.EmulatorCount)
-	logger.Info("emulator pool initialized", zap.Int("count", cfg.EmulatorCount))
+	containerMgr := container.NewManager(cfg.ComposePath, cfg.ComposeProject, cfg.ServicePrefix)
+	healthMon := health.NewMonitor(cfg.AdbHost, cfg.AdbPort)
+
+	manager := lifecycle.NewManager(lifecycle.Config{
+		Pool:          pool,
+		Container:     containerMgr,
+		HealthMonitor: healthMon,
+		ADBClient:     adbClient,
+		Logger:        logger,
+		AutoStart:     cfg.AutoStartEmul,
+		CheckInterval: time.Duration(cfg.CheckInterval) * time.Second,
+	})
+
+	managerCtx, managerCancel := context.WithCancel(context.Background())
+	defer managerCancel()
+
+	go func() {
+		if err := manager.Start(managerCtx); err != nil {
+			logger.Error("lifecycle manager error", zap.Error(err))
+		}
+	}()
 
 	if cfg.AppEnv == "production" {
 		gin.SetMode(gin.ReleaseMode)
@@ -48,7 +77,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery(), lib.RequestLogger(logger))
 
-	srv := api.NewServer(pool, logger, cfg.APIToken)
+	srv := api.NewServer(pool, manager, logger, cfg.APIToken)
 	srv.Register(r)
 
 	httpSrv := &http.Server{
@@ -61,10 +90,7 @@ func main() {
 	}
 
 	go func() {
-		logger.Info("orchestrator starting",
-			zap.String("port", cfg.Port),
-			zap.Int("emulators", cfg.EmulatorCount),
-			zap.String("adb", fmt.Sprintf("%s:%d", cfg.AdbHost, cfg.AdbPort)))
+		logger.Info("orchestrator API starting", zap.String("port", cfg.Port))
 		if err := httpSrv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.Fatal("server failed", zap.Error(err))
 		}
@@ -74,11 +100,16 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	logger.Info("shutting down orchestrator...")
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	logger.Info("shutdown signal received, draining...")
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if err := httpSrv.Shutdown(shutdownCtx); err != nil {
-		logger.Fatal("forced shutdown", zap.Error(err))
+		logger.Error("http shutdown error", zap.Error(err))
 	}
+
+	managerCancel()
+	time.Sleep(2 * time.Second)
+
 	logger.Info("orchestrator exited")
 }

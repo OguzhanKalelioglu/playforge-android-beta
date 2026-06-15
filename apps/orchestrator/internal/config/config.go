@@ -2,42 +2,59 @@ package config
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	Port          string
-	DatabaseURL   string
-	AppEnv        string
-	LogLevel      string
-	EmulatorCount int
-	AdbHost       string
-	AdbPort       int
-	APIToken      string
+	Port            string
+	DatabaseURL     string
+	AppEnv          string
+	LogLevel        string
+	EmulatorCount   int
+	AdbHost         string
+	AdbPort         int
+	APIToken        string
+	ComposePath     string
+	ComposeProject  string
+	ServicePrefix   string
+	AutoStartEmul   bool
+	CheckInterval   int
 }
 
 func Load() (*Config, error) {
 	_ = godotenv.Load()
 
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	viper.SetDefault("PORT", "9000")
 	viper.SetDefault("APP_ENV", "development")
 	viper.SetDefault("LOG_LEVEL", "info")
 	viper.SetDefault("EMULATOR_MAX_INSTANCES", 25)
 	viper.SetDefault("ADB_SERVER_PORT", 5037)
 	viper.SetDefault("ADB_HOST", "127.0.0.1")
+	viper.SetDefault("COMPOSE_PROJECT", "testers-minipc")
+	viper.SetDefault("COMPOSE_PATH", "../../infra/minipc/docker-compose.yml")
+	viper.SetDefault("SERVICE_PREFIX", "emulator")
+	viper.SetDefault("AUTO_START_EMULATORS", true)
+	viper.SetDefault("EMULATOR_CHECK_INTERVAL", 60)
 	viper.AutomaticEnv()
 
 	cfg := &Config{
-		Port:          viper.GetString("PORT"),
-		DatabaseURL:   viper.GetString("DATABASE_URL"),
-		AppEnv:        viper.GetString("APP_ENV"),
-		LogLevel:      viper.GetString("LOG_LEVEL"),
-		EmulatorCount: viper.GetInt("EMULATOR_MAX_INSTANCES"),
-		AdbHost:       viper.GetString("ADB_HOST"),
-		AdbPort:       viper.GetInt("ADB_SERVER_PORT"),
-		APIToken:      viper.GetString("ORCHESTRATOR_API_TOKEN"),
+		Port:           viper.GetString("PORT"),
+		DatabaseURL:    viper.GetString("DATABASE_URL"),
+		AppEnv:         viper.GetString("APP_ENV"),
+		LogLevel:       viper.GetString("LOG_LEVEL"),
+		EmulatorCount:  viper.GetInt("EMULATOR_MAX_INSTANCES"),
+		AdbHost:        viper.GetString("ADB_HOST"),
+		AdbPort:        viper.GetInt("ADB_SERVER_PORT"),
+		APIToken:       viper.GetString("ORCHESTRATOR_API_TOKEN"),
+		ComposePath:    viper.GetString("COMPOSE_PATH"),
+		ComposeProject: viper.GetString("COMPOSE_PROJECT"),
+		ServicePrefix:  viper.GetString("SERVICE_PREFIX"),
+		AutoStartEmul:  viper.GetBool("AUTO_START_EMULATORS"),
+		CheckInterval:  viper.GetInt("EMULATOR_CHECK_INTERVAL"),
 	}
 
 	if err := cfg.validate(); err != nil {

@@ -1,0 +1,57 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Go
+**/bin/
+**/*.exe
+**/*.exe~
+**/*.dll
+**/*.so
+**/*.dylib
+**/vendor/
+
+# Node
+node_modules/
+.pnpm-store/
+.next/
+out/
+build/
+dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# macOS metadata (AppleDouble files)
+/._*
+.Spotlight-V100/
+.fseventsd/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test
+coverage/
+*.cover
+.nyc_output
+
+# Docker
+**/*.tmp
+
+# Backups
+backups/
+*.sql.gz
+*.tar.gz
+
+# Local emulator data
+infra/minipc/emulator-data/
+screenshots/

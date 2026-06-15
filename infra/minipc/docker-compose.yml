@@ -1,0 +1,50 @@
+name: testers-minipc
+
+# ============================================
+# Mini PC Emulator Farm
+# Bu dosya, ev/ofis konumundaki 64GB RAM Mini PC'de çalışır.
+# 1 emulator (Phase 1 - Hafta 3)
+# Sonraki haftalarda emulator-02, emulator-03... eklenir.
+# ============================================
+
+services:
+  emulator-01:
+    image: budtmo/docker-android:emulator_11.0
+    container_name: tc-emulator-01
+    privileged: true
+    devices:
+      - /dev/kvm:/dev/kvm
+    ports:
+      - "5554:5554"
+      - "5555:5555"
+    environment:
+      - ANDROID_EMULATOR_DEVICE=Pixel_5
+      - WEB_VNC=false
+      - EMULATOR_PARAMS=-no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel auto -cores 2 -memory 1536
+      - TZ=Europe/Istanbul
+    shm_size: '2gb'
+    mem_limit: 3gb
+    volumes:
+      - ./emulator-data/01:/root/.android
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "adb -s emulator-5554 shell getprop sys.boot_completed | grep -q 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 12
+      start_period: 180s
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # İleride ekleyeceğin emulatorler (Phase 2-3):
+  # emulator-02:
+  #   image: budtmo/docker-android:emulator_11.0
+  #   container_name: tc-emulator-02
+  #   ...
+  #   ports: ["5556:5554", "5557:5555"]
+  #   shm_size: '2gb'
+  #   mem_limit: 3gb

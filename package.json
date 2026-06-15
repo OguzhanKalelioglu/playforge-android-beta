@@ -1,0 +1,19 @@
+{
+  "name": "testers-community",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ücretli Android uygulama test hizmeti platformu",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "build": "pnpm --filter web build",
+    "lint": "pnpm --filter web lint",
+    "go:build": "cd apps/api && go build -o bin/api ./cmd/server && cd ../orchestrator && go build -o bin/orchestrator ./cmd/orchestrator",
+    "go:run:api": "cd apps/api && go run ./cmd/server",
+    "go:run:worker": "cd apps/api && go run ./cmd/worker",
+    "go:run:scheduler": "cd apps/api && go run ./cmd/scheduler"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20"
+  }
+}

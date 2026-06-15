@@ -1,0 +1,53 @@
+{
+    email {$ACME_EMAIL:admin@testerscomm.net}
+    auto_https on
+    admin off
+    servers {
+        protocol {
+            experimental_http3
+        }
+    }
+}
+
+# Ana site
+www.{$DOMAIN:testerscomm.net}, {$DOMAIN:testerscomm.net} {
+    reverse_proxy web:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    encode gzip zstd
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+}
+
+# API
+api.{$DOMAIN:testerscomm.net} {
+    reverse_proxy api:8080 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    encode gzip zstd
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+    }
+}
+
+# Asynqmon (queue monitoring UI - basic auth korumalı)
+asynq.{$DOMAIN:testerscomm.net} {
+    basicauth {
+        admin {$ASYNQ_ADMIN_PASSWORD:change-me}
+    }
+    reverse_proxy asynqmon:8080
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    }
+}

@@ -1,0 +1,193 @@
+# PlayForge tam stack — Mini PC smoke test
+# 3 emulator + orchestrator + appium + API + worker + scheduler + postgres + redis
+# Production'da postgres/redis VPS'te, burada hepsi lokal
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pf-postgres
+    environment:
+      POSTGRES_DB: testers
+      POSTGRES_USER: tester
+      POSTGRES_PASSWORD: tester_dev
+    expose:
+      - "5432"
+    volumes:
+      - pf-pgdata:/var/lib/postgresql/data
+      - ../../apps/api/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tester"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    container_name: pf-redis
+    expose:
+      - "6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+    container_name: pf-api
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment:
+      APP_ENV: development
+      PORT: 8080
+      DATABASE_URL: postgres://tester:tester_dev@postgres:5432/testers?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-change-in-prod-32chars-min
+      STRIPE_SECRET_KEY: ""
+      STRIPE_WEBHOOK_SECRET: whsec_dev
+      STRIPE_PUBLISHABLE_KEY: pk_dev
+      ACTIVITY_INGEST_TOKEN: dev-activity-token-change-in-prod
+      ORCHESTRATOR_API_TOKEN: dev-orch-token-change-in-prod
+      DOMAIN: localhost
+      LOG_LEVEL: info
+      PUBLIC_WEB_URL: http://localhost:3000
+    ports:
+      - "18080:8080"
+
+  worker:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile.worker
+    container_name: pf-worker
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      api: { condition: service_started }
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgres://tester:tester_dev@postgres:5432/testers?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      ORCHESTRATOR_API_URL: http://orchestrator:9000
+      ORCHESTRATOR_API_TOKEN: dev-orch-token-change-in-prod
+      LOG_LEVEL: info
+
+  scheduler:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile.scheduler
+    container_name: pf-scheduler
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    environment:
+      APP_ENV: development
+      DATABASE_URL: postgres://tester:tester_dev@postgres:5432/testers?sslmode=disable
+      REDIS_URL: redis://redis:6379
+      LOG_LEVEL: info
+
+  appium:
+    image: appium/appium:latest
+    container_name: pf-appium
+    environment:
+      APPIUM_HOME: /usr/lib/appium
+    ports:
+      - "4723:4723"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:4723/status | grep -q ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  orchestrator:
+    build:
+      context: ../../apps/orchestrator
+      dockerfile: Dockerfile
+    container_name: pf-orchestrator
+    depends_on:
+      appium: { condition: service_healthy }
+    environment:
+      APPIUM_URL: http://appium:4723
+      ACTIVITY_API_URL: http://host.docker.internal:8080/api/v1/activity
+      ACTIVITY_API_TOKEN: dev-activity-token-change-in-prod
+      EMULATOR_MAX_INSTANCES: 3
+      EMULATOR_CHECK_INTERVAL: 60
+      ADB_HOST: host.docker.internal
+      ADB_SERVER_PORT: 5037
+      SCREENSHOT_DIR: /data/screenshots
+      TASK_WATCHDOG_MIN: 10
+      LOG_LEVEL: debug
+    ports:
+      - "9000:9000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - pf-screenshots:/data/screenshots
+
+  # 3 emulator — Samsung S10, Pixel 4, OnePlus 7
+  emulator-0001:
+    image: budtmo/docker-android:emulator_11.0
+    container_name: pf-emulator-0001
+    privileged: true
+    devices:
+      - /dev/kvm
+    ports:
+      - "5554:5554"
+      - "5555:5555"
+    environment:
+      - DEVICE=Samsung Galaxy S10
+      - ANDROID_VERSION=11.0
+    shm_size: 2G
+    healthcheck:
+      test: ["CMD", "adb", "shell", "getprop", "sys.boot_completed"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 180s
+
+  emulator-0002:
+    image: budtmo/docker-android:emulator_11.0
+    container_name: pf-emulator-0002
+    privileged: true
+    devices:
+      - /dev/kvm
+    ports:
+      - "5556:5554"
+      - "5557:5555"
+    environment:
+      - DEVICE=Google Pixel 4
+      - ANDROID_VERSION=11.0
+    shm_size: 2G
+    healthcheck:
+      test: ["CMD", "adb", "shell", "getprop", "sys.boot_completed"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 180s
+
+  emulator-0003:
+    image: budtmo/docker-android:emulator_11.0
+    container_name: pf-emulator-0003
+    privileged: true
+    devices:
+      - /dev/kvm
+    ports:
+      - "5558:5554"
+      - "5559:5555"
+    environment:
+      - DEVICE=OnePlus 7
+      - ANDROID_VERSION=11.0
+    shm_size: 2G
+    healthcheck:
+      test: ["CMD", "adb", "shell", "getprop", "sys.boot_completed"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 180s
+
+volumes:
+  pf-pgdata:
+  pf-screenshots:

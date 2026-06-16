@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
+import { LiveTestFeed } from '@/components/live-test-feed'
 import { formatCurrency } from '@/lib/format'
 import { LOCALE_CONFIG, type Locale } from '@/lib/brand'
 import { PLANS, getCurrencyForLocale, getIntlLocale } from '@/lib/pricing'
@@ -44,57 +45,65 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
       <SiteHeader variant="marketing" locale={locale} />
 
       <main className="flex-1">
-        {/* HERO */}
+        {/* HERO — asymmetric 5/7 split. Left: hook, bridge, single CTA.
+            Right: live test feed — the proof object. Brief calls this
+            "Decide + Reassure" register; the feed is the reassurance. */}
         <section className="border-b">
-          <div className="container py-20 md:py-28">
-            <div className="mx-auto max-w-3xl text-center">
-              <Badge variant="muted" className="mb-6">
-                {t('badge')}
-              </Badge>
-              <h1 className="text-4xl font-semibold tracking-tightish md:text-6xl">
-                {t('heroTitle1')}
-                <br />
-                <span className="text-primary">{t('heroTitle2')}</span>
-              </h1>
-              <p className="mt-6 text-lg text-muted-foreground md:text-xl">
-                {t('heroSubtitle')}
-              </p>
-              <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                <Button size="lg" asChild>
-                  <Link href={`/${locale}/register`}>
-                    {t('ctaStart')} <ArrowRight className="ml-2 h-4 w-4" />
+          <div className="container py-16 md:py-24">
+            <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
+              <div className="lg:col-span-5">
+                <p className="mono text-xs uppercase tracking-widest text-muted-foreground">
+                  {t('badge')}
+                </p>
+                <h1 className="mt-5 text-4xl font-semibold leading-[1.05] tracking-tightish md:text-5xl lg:text-6xl">
+                  {t('heroTitle1')}
+                  <br />
+                  <span className="text-primary">{t('heroTitle2')}</span>
+                </h1>
+                <p className="mt-6 max-w-md text-base text-muted-foreground md:text-lg">
+                  {t('heroSubtitle')}
+                </p>
+
+                <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                  <Button size="lg" asChild>
+                    <Link href={`/${locale}/register`}>
+                      {t('ctaStart')} <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Link
+                    href="#pricing"
+                    className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+                  >
+                    {t('ctaPricing')} →
                   </Link>
-                </Button>
-                <Button size="lg" variant="ghost" asChild>
-                  <Link href="#pricing">{t('ctaPricing')}</Link>
-                </Button>
+                </div>
+
+                {/* inline stat row — part of the hero, not a separate panel */}
+                <dl className="mt-10 flex flex-wrap items-baseline gap-x-8 gap-y-3 border-l-2 border-primary/40 pl-5">
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      {t('stat1Label')}
+                    </dt>
+                    <dd className="mt-1 text-2xl font-semibold tabular-nums leading-none">25</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      {t('stat2Label')}
+                    </dt>
+                    <dd className="mt-1 text-2xl font-semibold tabular-nums leading-none">14</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                      {t('stat3Label')}
+                    </dt>
+                    <dd className="mt-1 text-2xl font-semibold tabular-nums leading-none">~18h</dd>
+                  </div>
+                </dl>
               </div>
-              <dl className="mt-16 grid grid-cols-3 overflow-hidden rounded-xl border bg-card text-left shadow-sm">
-                <div className="border-r p-5">
-                  <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t('stat1Label')}
-                  </dt>
-                  <dd className="mt-2 text-4xl font-semibold tabular-nums leading-none">
-                    25
-                  </dd>
-                </div>
-                <div className="border-r p-5">
-                  <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t('stat2Label')}
-                  </dt>
-                  <dd className="mt-2 text-4xl font-semibold tabular-nums leading-none">
-                    14
-                  </dd>
-                </div>
-                <div className="p-5">
-                  <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                    {t('stat3Label')}
-                  </dt>
-                  <dd className="mt-2 text-4xl font-semibold tabular-nums leading-none">
-                    ~18h
-                  </dd>
-                </div>
-              </dl>
+
+              <div className="lg:col-span-7">
+                <LiveTestFeed />
+              </div>
             </div>
           </div>
         </section>

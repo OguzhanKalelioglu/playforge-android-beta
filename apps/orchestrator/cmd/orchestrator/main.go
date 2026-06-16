@@ -106,6 +106,7 @@ func main() {
 	taskHandler := api.NewTaskHandler(runner, logger)
 	srv := api.NewServer(pool, manager, taskHandler, logger, cfg.APIToken)
 	srv.Register(r)
+	taskHandler.Register(r, srv.AuthMiddleware())
 
 	httpSrv := &http.Server{
 		Addr:              ":" + cfg.Port,

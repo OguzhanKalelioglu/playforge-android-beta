@@ -42,7 +42,7 @@ func (s *Server) Register(r *gin.Engine) {
 	r.GET("/emulators/counts", s.EmulatorCounts)
 	r.GET("/emulators/:serial", s.GetEmulator)
 
-	auth := r.Group("/", s.authMiddleware())
+	auth := r.Group("/", s.AuthMiddleware())
 	{
 		auth.POST("/emulators/start-all", s.StartAll)
 		auth.POST("/emulators/stop-all", s.StopAll)
@@ -260,7 +260,7 @@ func (s *Server) toDTO(e *emulator.Emulator) EmulatorDTO {
 	return dto
 }
 
-func (s *Server) authMiddleware() gin.HandlerFunc {
+func (s *Server) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("X-API-Token")
 		if token == "" {

@@ -1,0 +1,48 @@
+version: "3.8"
+
+# 2-emulator smoke test (Mini PC için minimal)
+# Tam 25 emulator için: infra/minipc/docker-compose.yml
+# Bu sadece SSH + KVM + image pull + boot + ADB bağlantısı test eder
+
+services:
+  emulator-0001:
+    image: budtmo/docker-android:emulator_11.0
+    container_name: emulator-0001
+    privileged: true
+    devices:
+      - /dev/kvm
+    ports:
+      - "5554:5554"   # console
+      - "5555:5555"   # adb
+    environment:
+      - DEVICE=Samsung Galaxy S10
+      - ANDROID_VERSION=11.0
+    shm_size: 2G
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "adb", "shell", "getprop", "sys.boot_completed"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 180s
+
+  emulator-0002:
+    image: budtmo/docker-android:emulator_11.0
+    container_name: emulator-0002
+    privileged: true
+    devices:
+      - /dev/kvm
+    ports:
+      - "5556:5554"
+      - "5557:5555"
+    environment:
+      - DEVICE=Google Pixel 4
+      - ANDROID_VERSION=11.0
+    shm_size: 2G
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "adb", "shell", "getprop", "sys.boot_completed"]
+      interval: 30s
+      timeout: 10s
+      retries: 30
+      start_period: 180s

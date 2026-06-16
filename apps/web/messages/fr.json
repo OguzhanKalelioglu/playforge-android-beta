@@ -149,7 +149,9 @@
     "passwordTooShort": "Le mot de passe doit comporter au moins 8 caractères",
     "nameRequired": "Le nom est requis",
     "loginError": "Email ou mot de passe incorrect",
-    "registerError": "Impossible de créer le compte"
+    "registerError": "Impossible de créer le compte",
+    "login": "Connexion",
+    "register": "S'inscrire"
   },
   "dashboard": {
     "title": "Mes tests",

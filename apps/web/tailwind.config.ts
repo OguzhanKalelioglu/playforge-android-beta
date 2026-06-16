@@ -1,5 +1,11 @@
 import type { Config } from 'tailwindcss'
 
+// All color tokens are stored in `globals.css` as space-separated OKLCH triplets
+// (`L C H`), so Tailwind can wrap them in `oklch(... / <alpha>)` and still
+// honor the `/50` opacity modifier that utility classes like `bg-primary/50`
+// expect.
+const ok = (name: string) => `oklch(var(--${name}))`
+
 const config: Config = {
   darkMode: 'class',
   content: [
@@ -17,54 +23,54 @@ const config: Config = {
     },
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: ok('border'),
+        input: ok('input'),
+        ring: ok('ring'),
+        background: ok('background'),
+        foreground: ok('foreground'),
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-          soft: 'hsl(var(--primary-soft))',
+          DEFAULT: ok('primary'),
+          foreground: ok('primary-foreground'),
+          soft: ok('primary-soft'),
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: ok('secondary'),
+          foreground: ok('secondary-foreground'),
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: ok('destructive'),
+          foreground: ok('destructive-foreground'),
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: ok('muted'),
+          foreground: ok('muted-foreground'),
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: ok('accent'),
+          foreground: ok('accent-foreground'),
         },
         success: {
-          DEFAULT: 'hsl(var(--success))',
-          foreground: 'hsl(var(--success-foreground))',
-          soft: 'hsl(var(--success-soft))',
+          DEFAULT: ok('success'),
+          foreground: ok('success-foreground'),
+          soft: ok('success-soft'),
         },
         warning: {
-          DEFAULT: 'hsl(var(--warning))',
-          foreground: 'hsl(var(--warning-foreground))',
-          soft: 'hsl(var(--warning-soft))',
+          DEFAULT: ok('warning'),
+          foreground: ok('warning-foreground'),
+          soft: ok('warning-soft'),
         },
         info: {
-          DEFAULT: 'hsl(var(--info))',
-          foreground: 'hsl(var(--info-foreground))',
-          soft: 'hsl(var(--info-soft))',
+          DEFAULT: ok('info'),
+          foreground: ok('info-foreground'),
+          soft: ok('info-soft'),
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: ok('card'),
+          foreground: ok('card-foreground'),
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+          DEFAULT: ok('popover'),
+          foreground: ok('popover-foreground'),
         },
       },
       borderRadius: {

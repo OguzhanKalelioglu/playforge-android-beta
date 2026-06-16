@@ -149,7 +149,9 @@
     "passwordTooShort": "Password must be at least 8 characters",
     "nameRequired": "Name is required",
     "loginError": "Invalid email or password",
-    "registerError": "Could not create your account"
+    "registerError": "Could not create your account",
+    "login": "Log in",
+    "register": "Sign up"
   },
   "dashboard": {
     "title": "My tests",

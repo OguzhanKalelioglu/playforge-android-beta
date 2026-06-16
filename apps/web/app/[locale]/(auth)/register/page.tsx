@@ -73,7 +73,7 @@ function RegisterForm({ locale }: { locale: Locale }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t('registerTitle')}</CardTitle>
+        <CardTitle as="h1">{t('registerTitle')}</CardTitle>
         <CardDescription>{t('registerSubtitle')}</CardDescription>
       </CardHeader>
       <CardContent>

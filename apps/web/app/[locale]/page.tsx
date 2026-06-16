@@ -69,18 +69,30 @@ export default async function HomePage({ params }: { params: Promise<{ locale: L
                   <Link href="#pricing">{t('ctaPricing')}</Link>
                 </Button>
               </div>
-              <dl className="mt-16 grid grid-cols-3 gap-4 border-y py-6 text-left">
-                <div>
-                  <dt className="text-xs text-muted-foreground">{t('stat1Label')}</dt>
-                  <dd className="mt-1 text-2xl font-semibold tabular-nums">25</dd>
+              <dl className="mt-16 grid grid-cols-3 overflow-hidden rounded-xl border bg-card text-left shadow-sm">
+                <div className="border-r p-5">
+                  <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {t('stat1Label')}
+                  </dt>
+                  <dd className="mt-2 text-4xl font-semibold tabular-nums leading-none">
+                    25
+                  </dd>
                 </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">{t('stat2Label')}</dt>
-                  <dd className="mt-1 text-2xl font-semibold tabular-nums">14</dd>
+                <div className="border-r p-5">
+                  <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {t('stat2Label')}
+                  </dt>
+                  <dd className="mt-2 text-4xl font-semibold tabular-nums leading-none">
+                    14
+                  </dd>
                 </div>
-                <div>
-                  <dt className="text-xs text-muted-foreground">{t('stat3Label')}</dt>
-                  <dd className="mt-1 text-2xl font-semibold tabular-nums">~18h</dd>
+                <div className="p-5">
+                  <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                    {t('stat3Label')}
+                  </dt>
+                  <dd className="mt-2 text-4xl font-semibold tabular-nums leading-none">
+                    ~18h
+                  </dd>
                 </div>
               </dl>
             </div>

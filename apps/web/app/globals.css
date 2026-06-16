@@ -5,98 +5,101 @@
 @layer base {
   :root {
     /* === Surfaces === */
-    --background: 0 0% 100%;
-    --foreground: 220 25% 12%;
+    --background: 100% 0 0;
+    --foreground: 22% 0.02 250;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 12%;
+    --card: 100% 0 0;
+    --card-foreground: 22% 0.02 250;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 12%;
+    --popover: 100% 0 0;
+    --popover-foreground: 22% 0.02 250;
 
-    /* === Brand: cobalt accent (HSL) === */
-    --primary: 222 89% 48%;
-    --primary-foreground: 0 0% 100%;
-    --primary-soft: 222 89% 96%;
+    /* === Brand: cobalt accent (OKLCH triplet L C H) ===
+       Distinct from Tailwind blue-500 (217 91% 60%):
+       cooler hue (245), higher chroma, deeper lightness for solidity. */
+    --primary: 54% 0.18 245;
+    --primary-foreground: 99% 0.005 245;
+    --primary-soft: 96% 0.03 245;
 
     /* === Secondary === */
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 25% 18%;
+    --secondary: 96% 0.01 245;
+    --secondary-foreground: 25% 0.02 245;
 
     /* === Muted === */
-    --muted: 220 14% 95%;
-    --muted-foreground: 220 10% 42%;
+    --muted: 95% 0.01 245;
+    --muted-foreground: 45% 0.015 245;
 
     /* === Accent (subtle highlight) === */
-    --accent: 220 14% 95%;
-    --accent-foreground: 220 25% 18%;
+    --accent: 95% 0.01 245;
+    --accent-foreground: 25% 0.02 245;
 
     /* === Destructive === */
-    --destructive: 0 72% 50%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 55% 0.20 25;
+    --destructive-foreground: 99% 0.005 25;
 
     /* === Status palette (semantic) === */
-    --success: 152 60% 36%;
-    --success-foreground: 0 0% 100%;
-    --success-soft: 152 60% 95%;
+    --success: 60% 0.14 152;
+    --success-foreground: 99% 0.005 152;
+    --success-soft: 95% 0.04 152;
 
-    --warning: 32 95% 44%;
-    --warning-foreground: 0 0% 100%;
-    --warning-soft: 32 95% 95%;
+    --warning: 70% 0.16 65;
+    --warning-foreground: 20% 0.02 65;
+    --warning-soft: 96% 0.04 65;
 
-    --info: 199 89% 48%;
-    --info-foreground: 0 0% 100%;
-    --info-soft: 199 89% 95%;
+    --info: 60% 0.14 230;
+    --info-foreground: 99% 0.005 230;
+    --info-soft: 96% 0.03 230;
 
     /* === Borders & inputs === */
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-    --ring: 222 89% 48%;
+    --border: 91% 0.01 245;
+    --input: 91% 0.01 245;
+    --ring: 54% 0.18 245;
 
     --radius: 0.625rem;
   }
 
   .dark {
-    --background: 220 25% 7%;
-    --foreground: 220 14% 96%;
+    --background: 14% 0.02 245;
+    --foreground: 96% 0.01 245;
 
-    --card: 220 25% 9%;
-    --card-foreground: 220 14% 96%;
+    --card: 17% 0.02 245;
+    --card-foreground: 96% 0.01 245;
 
-    --popover: 220 25% 9%;
-    --popover-foreground: 220 14% 96%;
+    --popover: 17% 0.02 245;
+    --popover-foreground: 96% 0.01 245;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 220 25% 7%;
-    --primary-soft: 217 91% 14%;
+    /* Slightly brighter for dark mode to keep AA contrast on cards/borders. */
+    --primary: 68% 0.18 245;
+    --primary-foreground: 14% 0.02 245;
+    --primary-soft: 25% 0.05 245;
 
-    --secondary: 220 14% 14%;
-    --secondary-foreground: 220 14% 96%;
+    --secondary: 22% 0.02 245;
+    --secondary-foreground: 96% 0.01 245;
 
-    --muted: 220 14% 14%;
-    --muted-foreground: 220 10% 65%;
+    --muted: 22% 0.02 245;
+    --muted-foreground: 70% 0.015 245;
 
-    --accent: 220 14% 14%;
-    --accent-foreground: 220 14% 96%;
+    --accent: 22% 0.02 245;
+    --accent-foreground: 96% 0.01 245;
 
-    --destructive: 0 72% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 65% 0.20 25;
+    --destructive-foreground: 99% 0.005 25;
 
-    --success: 152 60% 50%;
-    --success-foreground: 220 25% 7%;
-    --success-soft: 152 60% 14%;
+    --success: 70% 0.16 152;
+    --success-foreground: 14% 0.02 152;
+    --success-soft: 25% 0.05 152;
 
-    --warning: 32 95% 60%;
-    --warning-foreground: 220 25% 7%;
-    --warning-soft: 32 95% 14%;
+    --warning: 75% 0.16 65;
+    --warning-foreground: 14% 0.02 65;
+    --warning-soft: 25% 0.05 65;
 
-    --info: 199 89% 60%;
-    --info-foreground: 220 25% 7%;
-    --info-soft: 199 89% 14%;
+    --info: 68% 0.14 230;
+    --info-foreground: 14% 0.02 230;
+    --info-soft: 25% 0.04 230;
 
-    --border: 220 14% 18%;
-    --input: 220 14% 18%;
-    --ring: 217 91% 60%;
+    --border: 26% 0.02 245;
+    --input: 26% 0.02 245;
+    --ring: 68% 0.18 245;
   }
 }
 

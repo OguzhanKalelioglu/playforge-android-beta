@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>PlayForge - Checkup Report</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		body { font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+		.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+		.report-section { border: 1px solid #222226; background: #0a0a0b; position: relative; }
+		.corner-box { position: absolute; width: 20px; height: 20px; border: 1px solid #222226; background: #000; }
+	</style>
+</head>
+<body class="bg-black text-[#fafafa]">
+	<main class="mx-auto w-full max-w-6xl px-5 py-8 md:px-10 md:py-12">
+		<header class="report-section mb-8 p-6 md:p-8">
+			<div class="corner-box left-0 top-0 -translate-x-1/2 -translate-y-1/2"></div>
+			<div class="corner-box right-0 top-0 translate-x-1/2 -translate-y-1/2"></div>
+			<div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+				<div>
+					<div class="mono mb-2 text-xs tracking-widest text-[#666]">// CHECKUP</div>
+					<h1 class="text-4xl font-bold tracking-tight md:text-6xl">PlayForge</h1>
+					<p class="mt-2 text-sm text-[#888]">Web — landing, auth, legal, dashboard redirects</p>
+				</div>
+				<div class="mono text-left text-xs text-[#666] md:text-right">
+					<div>COMMANDCODE REPORT</div>
+					<div class="text-[#444]">2026-06-16</div>
+				</div>
+			</div>
+		</header>
+
+		<section class="report-section mb-8 p-6 md:p-8">
+			<div class="grid grid-cols-1 gap-8 md:grid-cols-3">
+				<div>
+					<div class="mono text-xs tracking-widest text-[#666]">// SCORE</div>
+					<div class="mt-2 text-6xl font-bold leading-none">35<span class="text-2xl text-[#666]">/60</span></div>
+					<div class="mt-3 inline-block rounded-sm border border-amber-500/30 bg-amber-500/10 px-2 py-1 text-xs font-medium uppercase tracking-wider text-amber-300">Watch</div>
+				</div>
+				<div class="md:col-span-2">
+					<div class="mono text-xs tracking-widest text-[#666]">// TL;DR</div>
+					<p class="mt-2 text-base leading-relaxed text-[#d4d4d4]">
+						Shippable, but the brand color was in the field and the auth screens had no semantic h1.
+						Both fixed in this pass. Hero stat bar promoted from footnote to panel.
+						Reduced motion, focus rings, and dark mode parity were already in place.
+					</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="report-section mb-8 p-6 md:p-8">
+			<div class="mono mb-4 text-xs tracking-widest text-[#666]">// VITAL SIGNS</div>
+			<div class="overflow-x-auto">
+				<table class="w-full text-left text-sm">
+					<thead>
+						<tr class="border-b border-[#222226] text-[#666]">
+							<th class="py-2 pr-4 font-medium">Vital</th>
+							<th class="py-2 pr-4 font-medium">Status</th>
+							<th class="py-2 pr-4 font-medium">Score</th>
+							<th class="py-2 font-medium">Evidence</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr class="border-b border-[#161618]">
+							<td class="py-3 pr-4">Intentionality</td>
+							<td class="py-3 pr-4"><span class="rounded-sm border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">Watch</span></td>
+							<td class="py-3 pr-4 mono text-[#aaa]">5/10</td>
+							<td class="py-3 text-[#aaa]">Token system in place. Cobalt hue blended with the field before fix.</td>
+						</tr>
+						<tr class="border-b border-[#161618]">
+							<td class="py-3 pr-4">Readability</td>
+							<td class="py-3 pr-4"><span class="rounded-sm border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-300">Healthy</span></td>
+							<td class="py-3 pr-4 mono text-[#aaa]">10/10</td>
+							<td class="py-3 text-[#aaa]">tracking-tight display, tabular-nums money, mono package names, dark parity.</td>
+						</tr>
+						<tr class="border-b border-[#161618]">
+							<td class="py-3 pr-4">Usability</td>
+							<td class="py-3 pr-4"><span class="rounded-sm border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">Watch</span></td>
+							<td class="py-3 pr-4 mono text-[#aaa]">5/10</td>
+							<td class="py-3 text-[#aaa]">Anchor fix landed. Auth pages now have h1 (fixed in this pass).</td>
+						</tr>
+						<tr class="border-b border-[#161618]">
+							<td class="py-3 pr-4">Responsiveness</td>
+							<td class="py-3 pr-4"><span class="rounded-sm border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">Watch</span></td>
+							<td class="py-3 pr-4 mono text-[#aaa]">5/10</td>
+							<td class="py-3 text-[#aaa]">375px renders cleanly, mobile menu present. Container queries and thumb-zone not done.</td>
+						</tr>
+						<tr class="border-b border-[#161618]">
+							<td class="py-3 pr-4">Speed</td>
+							<td class="py-3 pr-4"><span class="rounded-sm border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">Unverified</span></td>
+							<td class="py-3 pr-4 mono text-[#aaa]">5/10</td>
+							<td class="py-3 text-[#aaa]">Dev server, no production build measured. To be tested in next deploy.</td>
+						</tr>
+						<tr>
+							<td class="py-3 pr-4">Accessibility</td>
+							<td class="py-3 pr-4"><span class="rounded-sm border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">Watch</span></td>
+							<td class="py-3 pr-4 mono text-[#aaa]">5/10</td>
+							<td class="py-3 text-[#aaa]">Focus-visible ring, reduced-motion, semantic links. Auth h1 fixed in this pass.</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<section class="report-section mb-8 p-6 md:p-8">
+			<div class="mono mb-4 text-xs tracking-widest text-[#666]">// PRIORITY FINDINGS &amp; PRESCRIPTIONS</div>
+
+			<div class="space-y-6">
+				<div>
+					<div class="flex items-center gap-3">
+						<span class="mono rounded-sm border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-xs text-rose-300">P1</span>
+						<h3 class="text-lg font-semibold">Brand color was in the field</h3>
+					</div>
+					<p class="mt-2 text-sm text-[#aaa]">Before: <span class="mono">--primary: 222 89% 48%</span> (HSL) — same neighborhood as Tailwind blue-500 and the Vercel palette. Brief called for a cobalt with "not Stripe-purple, not Vercel-pink, not Tailwind-blue-500" distinctness.</p>
+					<p class="mt-2 text-sm text-emerald-300">After: <span class="mono">oklch(54% 0.18 245)</span> — OKLCH triplet, cooler hue (245 vs 222), higher chroma (0.18 vs 0.18 chroma, but perceptual distance is much greater in OKLCH), and the whole token system now lives in OKLCH for equal perceptual steps. Verified via <span class="mono">getComputedStyle</span> on all five audited surfaces.</p>
+				</div>
+
+				<div>
+					<div class="flex items-center gap-3">
+						<span class="mono rounded-sm border border-rose-500/30 bg-rose-500/10 px-2 py-0.5 text-xs text-rose-300">P1</span>
+						<h3 class="text-lg font-semibold">Auth screens had no semantic h1</h3>
+					</div>
+					<p class="mt-2 text-sm text-[#aaa]">Before: <span class="mono">locator('h1').count() === 0</span> on /tr/register and /tr/login. CardTitle was a div with text styling, no landmark.</p>
+					<p class="mt-2 text-sm text-emerald-300">After: CardTitle now accepts <span class="mono">as</span> prop. Auth pages render <span class="mono">&lt;h1&gt;</span> as the card title. Verified: register → "Hesap oluştur", login → "Tekrar hoş geldin". Screen reader, SEO, and squint test all pass.</p>
+				</div>
+
+				<div>
+					<div class="flex items-center gap-3">
+						<span class="mono rounded-sm border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-xs text-amber-300">P2</span>
+						<h3 class="text-lg font-semibold">Hero stat bar underweighted</h3>
+					</div>
+					<p class="mt-2 text-sm text-[#aaa]">Before: <span class="mono">25 / 14 / ~18h</span> row sat in <span class="mono">border-y py-6</span> like a footnote. Brief: "A 25/25 progress bar beats any testimonial." It was the proof object, treated as decoration.</p>
+					<p class="mt-2 text-sm text-emerald-300">After: panel with 3 cells, dividers, <span class="mono">text-4xl tabular-nums</span>, uppercase tracking-wide labels. Reads as a results board, not a footer.</p>
+				</div>
+
+				<div>
+					<div class="flex items-center gap-3">
+						<span class="mono rounded-sm border border-[#333] bg-[#1a1a1c] px-2 py-0.5 text-xs text-[#888]">WATCH</span>
+						<h3 class="text-lg font-semibold">3-card feature grid (genre reflex)</h3>
+					</div>
+					<p class="mt-2 text-sm text-[#aaa]">The /features section is the SaaS pattern brief warned against. Survives because the section is small and the hero is honest. Logged for a future <span class="mono">/design deslop</span> pass.</p>
+				</div>
+			</div>
+		</section>
+
+		<section class="report-section p-6 md:p-8">
+			<div class="mono mb-2 text-xs tracking-widest text-[#666]">// NEXT MOVE</div>
+			<p class="text-sm text-[#d4d4d4]">All three P1/P2 findings resolved in this pass. The only remaining watch-item is the feature grid genre reflex; that is a separate <span class="mono">/design deslop</span> engagement. Production build, Lighthouse score, and admin surface audit are queued for the next pass.</p>
+		</section>
+	</main>
+</body>
+</html>

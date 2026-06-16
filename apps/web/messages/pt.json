@@ -149,7 +149,9 @@
     "passwordTooShort": "A senha deve ter pelo menos 8 caracteres",
     "nameRequired": "O nome é obrigatório",
     "loginError": "Email ou senha incorretos",
-    "registerError": "Não foi possível criar a conta"
+    "registerError": "Não foi possível criar a conta",
+    "login": "Entrar",
+    "register": "Cadastrar"
   },
   "dashboard": {
     "title": "Meus testes",

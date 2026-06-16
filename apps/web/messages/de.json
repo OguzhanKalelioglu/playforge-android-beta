@@ -149,7 +149,9 @@
     "passwordTooShort": "Passwort muss mindestens 8 Zeichen haben",
     "nameRequired": "Name ist erforderlich",
     "loginError": "E-Mail oder Passwort falsch",
-    "registerError": "Konto konnte nicht erstellt werden"
+    "registerError": "Konto konnte nicht erstellt werden",
+    "login": "Anmelden",
+    "register": "Registrieren"
   },
   "dashboard": {
     "title": "Meine Tests",

@@ -135,6 +135,8 @@
     "forgotPassword": "Şifreni mi unuttun?",
     "noAccount": "Hesabın yok mu?",
     "signUp": "Kayıt ol",
+    "login": "Giriş yap",
+    "register": "Hesap oluştur",
     "signingIn": "Giriş yapılıyor…",
     "registerTitle": "Hesap oluştur",
     "registerSubtitle": "İlk testine dakikalar içinde başla",

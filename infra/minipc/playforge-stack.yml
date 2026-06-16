@@ -91,8 +91,6 @@ services:
   appium:
     image: appium/appium:latest
     container_name: pf-appium
-    environment:
-      APPIUM_HOME: /usr/lib/appium
     ports:
       - "4723:4723"
     healthcheck:

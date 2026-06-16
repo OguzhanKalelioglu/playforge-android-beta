@@ -110,9 +110,11 @@ services:
     depends_on:
       appium: { condition: service_healthy }
     environment:
+      APP_ENV: development
       APPIUM_URL: http://appium:4723
       ACTIVITY_API_URL: http://host.docker.internal:8080/api/v1/activity
       ACTIVITY_API_TOKEN: dev-activity-token-change-in-prod
+      DATABASE_URL: postgres://tester:tester_dev@postgres:5432/testers?sslmode=disable
       EMULATOR_MAX_INSTANCES: 3
       EMULATOR_CHECK_INTERVAL: 60
       ADB_HOST: host.docker.internal

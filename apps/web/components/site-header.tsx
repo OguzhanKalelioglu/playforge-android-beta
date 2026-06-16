@@ -25,8 +25,8 @@ export function SiteHeader({ variant = 'marketing', userEmail, locale }: SiteHea
   const [open, setOpen] = useState(false)
 
   const marketingNav = [
-    { label: tFooter('productFeatures'), href: '/#features' },
-    { label: tFooter('productHow'), href: '/#how' },
+    { label: tFooter('productFeatures'), href: `/${locale}#features` },
+    { label: tFooter('productHow'), href: `/${locale}#how` },
     { label: tFooter('productPricing'), href: '#pricing' },
     { label: tMarketing('faqTitle'), href: '#faq' },
   ]
@@ -54,14 +54,11 @@ export function SiteHeader({ variant = 'marketing', userEmail, locale }: SiteHea
 
         <nav className="hidden items-center gap-1 md:flex">
           {items.map((item) => {
-            const href = variant === 'app' || item.href.startsWith('/#') || item.href.startsWith('#')
-              ? item.href.startsWith('#') ? `/${locale}${item.href}` : item.href
-              : item.href
             const active = pathname === item.href
             return (
               <Link
                 key={item.href}
-                href={href}
+                href={item.href}
                 className={cn(
                   'rounded-md px-3 py-1.5 text-sm transition-colors',
                   active
@@ -113,13 +110,10 @@ export function SiteHeader({ variant = 'marketing', userEmail, locale }: SiteHea
         <div className="border-t bg-card md:hidden">
           <div className="container flex flex-col gap-1 py-3">
             {items.map((item) => {
-              const href = item.href.startsWith('#')
-                ? `/${locale}${item.href}`
-                : item.href
               return (
                 <Link
                   key={item.href}
-                  href={href}
+                  href={item.href}
                   onClick={() => setOpen(false)}
                   className="rounded-md px-3 py-2 text-sm text-foreground hover:bg-muted"
                 >

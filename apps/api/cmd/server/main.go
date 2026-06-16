@@ -118,7 +118,7 @@ func main() {
 	adminH.Register(r)
 
 	// Activity (orchestrator'dan)
-	activityH := handler.NewActivityHandler(pg.Pool, cfg.OrchestratorAPIToken, logger)
+	activityH := handler.NewActivityHandler(pg.Pool, cfg.ActivityIngestToken, logger)
 	activityH.Register(r)
 
 	// Legacy ping

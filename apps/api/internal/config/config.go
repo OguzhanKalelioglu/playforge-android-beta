@@ -25,6 +25,7 @@ type Config struct {
 	SMTPPassword string
 
 	OrchestratorAPIToken string
+	ActivityIngestToken  string
 	Domain               string
 	LogLevel             string
 	SentryDSN            string
@@ -62,6 +63,7 @@ func Load() (*Config, error) {
 		SMTPUser:             viper.GetString("SMTP_USER"),
 		SMTPPassword:         viper.GetString("SMTP_PASSWORD"),
 		OrchestratorAPIToken: viper.GetString("ORCHESTRATOR_API_TOKEN"),
+		ActivityIngestToken:  viper.GetString("ACTIVITY_INGEST_TOKEN"),
 		Domain:               viper.GetString("DOMAIN"),
 		LogLevel:             viper.GetString("LOG_LEVEL"),
 		SentryDSN:            viper.GetString("SENTRY_DSN"),

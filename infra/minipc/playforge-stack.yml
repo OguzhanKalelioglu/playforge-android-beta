@@ -70,6 +70,7 @@ services:
       APP_ENV: development
       DATABASE_URL: postgres://tester:tester_dev@postgres:5432/testers?sslmode=disable
       REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-change-in-prod-32chars-min
       ORCHESTRATOR_API_URL: http://orchestrator:9000
       ORCHESTRATOR_API_TOKEN: dev-orch-token-change-in-prod
       LOG_LEVEL: info
@@ -86,6 +87,7 @@ services:
       APP_ENV: development
       DATABASE_URL: postgres://tester:tester_dev@postgres:5432/testers?sslmode=disable
       REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-change-in-prod-32chars-min
       LOG_LEVEL: info
 
   appium:
